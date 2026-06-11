@@ -8,6 +8,7 @@ use App\Models\JournalEntry;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieDetailPage;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieFormPage;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieIndexPage;
+use App\Services\TransactionEntryValidator;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Core\Exceptions\ResourceException;
@@ -69,6 +70,22 @@ class JournalEntrieResource extends ModelResource
         return parent::beforeUpdating($item);
     }
 
+    protected function afterCreated(DataWrapperContract $item): DataWrapperContract
+    {
+        $item = parent::afterCreated($item);
+        $this->assertBalancedAfterSave($item, rollbackOnFailure: true);
+
+        return $item;
+    }
+
+    protected function afterUpdated(DataWrapperContract $item): DataWrapperContract
+    {
+        $item = parent::afterUpdated($item);
+        $this->assertBalancedAfterSave($item, rollbackOnFailure: false);
+
+        return $item;
+    }
+
     protected function beforeDeleting(DataWrapperContract $item): DataWrapperContract
     {
         $this->ensureParentMutable($item);
@@ -90,5 +107,30 @@ class JournalEntrieResource extends ModelResource
         $entry->loadMissing("transaction");
 
         return $entry->transaction?->isPosted() ?? false;
+    }
+
+    private function assertBalancedAfterSave(DataWrapperContract $item, bool $rollbackOnFailure): void
+    {
+        $entry = $item->getOriginal();
+
+        if (! $entry instanceof JournalEntry || ! $entry->transaction_id) {
+            return;
+        }
+
+        $transaction = $entry->transaction()->first();
+
+        if ($transaction === null || $transaction->isPosted()) {
+            return;
+        }
+
+        try {
+            app(TransactionEntryValidator::class)->assertBalancedWhenComplete($transaction);
+        } catch (\InvalidArgumentException $exception) {
+            if ($rollbackOnFailure && $entry->exists) {
+                $entry->delete();
+            }
+
+            throw new ResourceException($exception->getMessage());
+        }
     }
 }

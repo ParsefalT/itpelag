@@ -128,10 +128,10 @@ class TrialBalancePage extends Page
         /** @var array{from?: string, to?: string}|null $period */
         $period = request()->input("period");
 
-        $from = data_get($period, "from");
-        $to = data_get($period, "to");
+        $from = $this->parseDate(data_get($period, "from"));
+        $to = $this->parseDate(data_get($period, "to"));
 
-        if (! is_string($from) || ! is_string($to) || $from === "" || $to === "") {
+        if ($from === null || $to === null) {
             return [
                 "from" => now()->startOfMonth()->toDateString(),
                 "to" => now()->toDateString(),
@@ -146,8 +146,25 @@ class TrialBalancePage extends Page
         }
 
         return [
-            "from" => Carbon::parse($from)->toDateString(),
-            "to" => Carbon::parse($to)->toDateString(),
+            "from" => $from,
+            "to" => $to,
         ];
+    }
+
+    private function parseDate(mixed $value): ?string
+    {
+        if (! is_string($value) || $value === "") {
+            return null;
+        }
+
+        if (! preg_match("/^\d{4}-\d{2}-\d{2}$/", $value)) {
+            return null;
+        }
+
+        try {
+            return Carbon::createFromFormat("Y-m-d", $value)->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

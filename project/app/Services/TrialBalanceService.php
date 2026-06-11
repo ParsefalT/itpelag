@@ -16,7 +16,10 @@ final class TrialBalanceService
     {
         $rows = DB::table("accounts")
             ->leftJoin("journal_entries as je", "je.account_id", "=", "accounts.id")
-            ->leftJoin("transactions as t", "t.id", "=", "je.transaction_id")
+            ->leftJoin("transactions as t", static function ($join): void {
+                $join->on("t.id", "=", "je.transaction_id")
+                    ->where("t.is_posted", true);
+            })
             ->where("accounts.is_active", true)
             ->groupBy("accounts.id", "accounts.code", "accounts.name")
             ->orderBy("accounts.code")

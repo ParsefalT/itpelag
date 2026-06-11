@@ -73,7 +73,7 @@ class LedgerService
      */
     public function createTransaction(array $data, array $entries): Transaction
     {
-        $this->validateEntries($entries);
+        $this->assertValidEntries($entries);
 
         return DB::transaction(function () use ($data, $entries) {
             $transaction = Transaction::create($data);
@@ -138,8 +138,18 @@ class LedgerService
 
     /**
      * Валидация правил двойной записи
+     *
+     * @param  list<array{amount: float|int|string, type: string}>  $entries
      */
-    private function validateEntries(array $entries): void
+    public function validateEntries(array $entries): void
+    {
+        $this->assertValidEntries($entries);
+    }
+
+    /**
+     * @param  list<array{amount: float|int|string, type: string}>  $entries
+     */
+    private function assertValidEntries(array $entries): void
     {
         if (count($entries) < 2) {
             throw new \InvalidArgumentException(

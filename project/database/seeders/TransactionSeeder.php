@@ -38,6 +38,8 @@ class TransactionSeeder extends Seeder
                 "amount" => 250.0,
                 "type" => "credit",
             ]);
+
+            $this->syncPostedStatus($transaction1);
         }
 
         if (! Transaction::where("description", "Ежемесячная оплата аренды офиса")->exists()) {
@@ -56,9 +58,20 @@ class TransactionSeeder extends Seeder
             JournalEntry::create([
                 "transaction_id" => $transaction2->id,
                 "account_id" => $cashAccount->id,
-                "amount" => 700.0,
+                "amount" => 500.5,
                 "type" => "credit",
             ]);
+
+            $this->syncPostedStatus($transaction2);
         }
+    }
+
+    private function syncPostedStatus(Transaction $transaction): void
+    {
+        $transaction->refresh();
+
+        $transaction->forceFill([
+            "is_posted" => $transaction->shouldBePosted(),
+        ])->saveQuietly();
     }
 }

@@ -4,7 +4,7 @@ test:
 
 # command about docker
 build:
-	cd docker/ && docker compose build && docker compuse up -d
+	cd docker/ && docker compose build && docker compose up -d
 
 start:
 	cd docker/ && docker compose up -d

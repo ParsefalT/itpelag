@@ -8,7 +8,6 @@ use App\MoonShine\Resources\Account\AccountResource;
 use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Contracts\UI\FormBuilderContract;
-use MoonShine\UI\Components\FormBuilder;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
@@ -16,15 +15,11 @@ use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\TypeEntryEnum;
 use Illuminate\Validation\Rule;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
-use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Support\ListOf;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Components\Layout\Box;
-use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\Number;
-use MoonShine\UI\Fields\Text;
-use Throwable;
 
 /**
  * @extends FormPage<JournalEntrieResource>
@@ -39,21 +34,20 @@ class JournalEntrieFormPage extends FormPage
         return [
             Box::make([
                 ID::make(),
-                Text::make("Amount", "amount")->required(),
-                Enum::make("Type", "type")->attach(TypeEntryEnum::class),
-
+                Number::make("Сумма", "amount")->min(0.01)->step(0.01)->required(),
+                Enum::make("Тип", "type")->attach(TypeEntryEnum::class)->required(),
                 BelongsTo::make(
-                    "account_id",
+                    "Счёт",
                     "account",
-                    null,
-                    AccountResource::class,
-                ),
+                    formatted: static fn ($model) => $model->name,
+                    resource: AccountResource::class,
+                )->required(),
                 BelongsTo::make(
-                    "transaction_id",
+                    "Транзакция",
                     "transaction",
-                    null,
-                    TransactionResource::class,
-                ),
+                    formatted: static fn ($model) => $model->description,
+                    resource: TransactionResource::class,
+                )->required(),
             ]),
         ];
     }
@@ -78,39 +72,22 @@ class JournalEntrieFormPage extends FormPage
         ];
     }
 
-    /**
-     * @param  FormBuilder  $component
-     *
-     * @return FormBuilder
-     */
     protected function modifyFormComponent(
         FormBuilderContract $component,
     ): FormBuilderContract {
         return $component;
     }
 
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
     protected function topLayer(): array
     {
         return [...parent::topLayer()];
     }
 
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
     protected function mainLayer(): array
     {
         return [...parent::mainLayer()];
     }
 
-    /**
-     * @return list<ComponentContract>
-     * @throws Throwable
-     */
     protected function bottomLayer(): array
     {
         return [...parent::bottomLayer()];

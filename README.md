@@ -1,67 +1,50 @@
-# ITPelag — учётная система с двойной записью
+# ITPelag
 
-**ITPelag** — веб-приложение для ведения бухгалтерского учёта по принципу **двойной записи** (double-entry bookkeeping). Каждая операция оформляется транзакцией с проводками по дебету и кредиту; система контролирует баланс и защищает проведённые документы от изменений.
+Небольшая учётная система с **двойной записью**: каждая операция — это транзакция с проводками по дебету и кредиту. Система следит, чтобы суммы сходились, а проведённые документы нельзя было случайно переписать.
 
-Проект построен на **Laravel 13** и **MoonShine 4** (админ-панель), с **REST API** для интеграций и **Swagger UI** для интерактивной документации.
-
----
-
-## Возможности
-
-| Область                | Описание                                                                                         |
-| ---------------------- | ------------------------------------------------------------------------------------------------ |
-| **План счетов**        | Счета с кодом, названием и типом (актив, пассив, доход, расход)                                  |
-| **Транзакции**         | Документы с датой, описанием и набором проводок                                                  |
-| **Двойная запись**     | Минимум две проводки; сумма дебета должна равняться сумме кредита                                |
-| **Проведение**         | Транзакция автоматически помечается как проведённая (`is_posted`), когда проводки сбалансированы |
-| **Защита проведённых** | Редактирование и удаление проведённых транзакций запрещено в админке и API                       |
-| **ОСВ**                | Отчёт «Оборотно-сальдовая ведомость» с фильтром по периоду                                       |
-| **Экспорт**            | Выгрузка транзакций в Excel и CSV                                                                |
-| **REST API**           | CRUD транзакций и остаток по счёту (HTTP Basic Auth)                                             |
-| **Swagger**            | OpenAPI 3.0 и UI на `/api/documentation`                                                         |
+Стек: **Laravel 13**, админка **MoonShine 4**, **PostgreSQL**, **REST API** и **Swagger** для ручной проверки запросов.
 
 ---
 
-## Архитектура
+## Что умеет
+
+- **План счетов** — код, название, тип (актив, доход, расход и т.д.)
+- **Транзакции и проводки** — минимум две строки, дебет = кредит
+- **Проведение** — сбалансированная транзакция помечается как проведённая (`is_posted`)
+- **Защита проведённых** — их нельзя менять и удалять (и в админке, и через API)
+- **ОСВ** — оборотно-сальдовая ведомость за выбранный период
+- **Экспорт** транзакций в Excel и CSV
+- **API** — создание транзакций, список счетов, остатки по счёту
+
+В отчётах и остатках учитываются **только проведённые** транзакции. Черновики в цифры не попадают.
+
+---
+
+## Как устроен проект
 
 ```
 itpelag/
-├── docker/          # Docker Compose: nginx, php-fpm, PostgreSQL
-└── project/         # Laravel-приложение
-    ├── app/
-    │   ├── Http/Controllers/Api/   # REST API
-    │   ├── MoonShine/              # Админ-панель
-    │   ├── OpenApi/                # Общие OpenAPI-схемы
-    │   ├── Services/               # Бизнес-логика (Ledger, TrialBalance, …)
-    │   └── Models/                 # Account, Transaction, JournalEntry
-    ├── routes/api.php
-    └── storage/api-docs/           # Сгенерированная OpenAPI-спецификация
+├── docker/     # nginx, php-fpm, PostgreSQL
+└── project/    # Laravel-приложение
 ```
 
-### Основные сущности
+Главные сущности:
 
-- **Account** — счёт учёта (код, название, тип).
-- **Transaction** — хозяйственная операция (дата, описание, флаг `is_posted`).
-- **JournalEntry** — проводка: счёт, сумма по дебету или кредиту.
+- **Account** — счёт
+- **Transaction** — операция (дата, описание)
+- **JournalEntry** — проводка (счёт, сумма, дебет или кредит)
 
-Расчёты сумм выполняются в **целых копейках** (integer cents), чтобы не зависеть от расширения `bcmath` в окружении.
-
-### Сервисы
-
-- `LedgerService` — создание, обновление и удаление транзакций с валидацией баланса.
-- `AccountBalanceService` — обороты и сальдо по счёту с учётом типа счёта.
-- `TrialBalanceService` — данные для отчёта ОСВ.
+Бизнес-логика лежит в `app/Services/` (`LedgerService`, `TrialBalanceService`, `AccountBalanceService`).
 
 ---
 
-## Быстрый старт (Docker)
+## Быстрый старт
 
-### Требования
+### Что нужно
 
-- Docker и Docker Compose
-- Git
+Docker, Docker Compose и Git.
 
-### 1. Клонирование и окружение
+### 1. Клонировать и настроить `.env`
 
 ```bash
 git clone <repository-url> itpelag
@@ -69,7 +52,7 @@ cd itpelag/project
 cp .env.example .env
 ```
 
-В `.env` для Docker укажите (значения по умолчанию в примере):
+Для Docker обычно хватает таких значений:
 
 ```env
 APP_URL=http://localhost:92
@@ -82,88 +65,91 @@ DB_USERNAME=user
 DB_PASSWORD=password
 ```
 
-### 2. Запуск контейнеров
+### 2. Поднять контейнеры
 
-```bash
-cd ../docker
-docker compose up -d --build
-```
-
-### Предпочтительно команды через make
-
-полный список находиться в _Makefile_
-типо коммпанды `make 'имя команды'`
-
-```
-сборка и запуска контейнеров - build:
-запуска контейнеров - start:
-перезапуск контейнеров - restart:
-остановка контейнеров - stop:
-зайти внутрь контейнера php-fpm - bash:
-просмотр запущеных контейнеров - ps:
-```
+Из корня репозитория (`itpelag/`):
 
 ```bash
 make build
 ```
 
-Приложение будет доступно по адресу: **http://localhost:92**
+После запуска:
 
-PostgreSQL с хоста: `localhost:5427` (см. `docker/.env`).
+- приложение: **http://localhost:92**
+- PostgreSQL с хоста: **localhost:5427** (порт из `docker/.env`)
 
-### 3. Установка зависимостей и миграции
+### Предпочтительно команды через make
+
+Полный список — в [`Makefile`](Makefile). Формат: `make <имя-команды>`.
+
+| Команда | Что делает |
+|--------|------------|
+| `make build` | Сборка и запуск контейнеров |
+| `make start` | Запуск контейнеров |
+| `make restart` | Перезапуск |
+| `make stop` | Остановка |
+| `make bash` | Войти в контейнер `php-fpm` |
+| `make ps` | Список запущенных контейнеров |
+| `make db` | Войти в контейнер PostgreSQL |
+
+Пример:
 
 ```bash
-docker exec -it itpelag-php-fpm composer install
-docker exec -it itpelag-php-fpm php artisan key:generate
-docker exec -it itpelag-php-fpm php artisan migrate
-docker exec -it itpelag-php-fpm php artisan db:seed
-docker exec -it itpelag-php-fpm php artisan moonshine:user
-docker exec -it itpelag-php-fpm php artisan l5-swagger:generate
+make build
 ```
 
-Команда `moonshine:user` создаёт администратора для входа в панель.
+### 3. Первичная настройка приложения
+
+Удобнее через `make bash`, дальше команды внутри контейнера:
+
+```bash
+make bash
+
+composer install
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
+php artisan moonshine:user
+php artisan l5-swagger:generate
+```
+
+`moonshine:user` — создать администратора для входа в `/admin`.
 
 ---
 
-## Админ-панель MoonShine
+## Админка
 
-| URL                       | Описание       |
-| ------------------------- | -------------- |
-| http://localhost:92/admin | Вход в админку |
+**http://localhost:92/admin**
 
-Разделы меню:
+В меню:
 
-- **Счета** — план счетов
-- **Транзакции** — документы и проводки (фильтр по счёту, экспорт)
-- **ОСВ** — оборотно-сальдовая ведомость за период
+- **Счета** — план счетов (счёт с проводками удалить нельзя — только деактивировать)
+- **Транзакции** — документы, проводки, фильтр, экспорт
+- **ОСВ** — отчёт за период
 
 ---
 
-## REST API
+## API
 
-Базовый префикс: `/api/v1`. Авторизация: **HTTP Basic Auth**.
+Базовый путь: `/api/v1`. Авторизация: **HTTP Basic Auth**.
 
-### Учётные данные (после `db:seed`)
+После `db:seed`:
 
-| Поле   | Значение          |
-| ------ | ----------------- |
-| Email  | `api@example.com` |
-| Пароль | `password`        |
+| | |
+|---|---|
+| Email | `api@example.com` |
+| Пароль | `password` |
 
-### Эндпоинты
+Основные методы:
 
-| Метод       | Путь                            | Описание                              |
-| ----------- | ------------------------------- | ------------------------------------- |
-| `GET`       | `/api/v1/transactions`          | Список транзакций                     |
-| `POST`      | `/api/v1/transactions`          | Создание транзакции с проводками      |
-| `GET`       | `/api/v1/transactions/{id}`     | Одна транзакция                       |
-| `PUT/PATCH` | `/api/v1/transactions/{id}`     | Обновление (только непроведённой)     |
-| `DELETE`    | `/api/v1/transactions/{id}`     | Удаление (только непроведённой)       |
-| `GET`       | `/api/v1/accounts`              | Список счетов (получить `account_id`) |
-| `GET`       | `/api/v1/accounts/{id}/balance` | Обороты и сальдо по счёту             |
+| Метод | Путь | Зачем |
+|-------|------|--------|
+| GET | `/api/v1/accounts` | Список счетов (нужен `account_id` для POST) |
+| GET | `/api/v1/accounts/{id}/balance` | Остаток по счёту |
+| GET/POST | `/api/v1/transactions` | Список / создание |
+| GET/PUT/DELETE | `/api/v1/transactions/{id}` | Просмотр / изменение / удаление |
 
-### Список счетов (узнать account_id)
+Сначала узнайте `id` счетов:
 
 ```bash
 curl -u api@example.com:password \
@@ -171,9 +157,7 @@ curl -u api@example.com:password \
   http://localhost:92/api/v1/accounts
 ```
 
-### Пример: создание транзакции
-
-Сначала получите реальные `id` счетов из `/api/v1/accounts`. В проводках указываются `amount` и `type` (`debit` / `credit`), суммы дебета и кредита должны совпадать.
+Пример создания транзакции (подставьте свои `account_id` из ответа выше):
 
 ```bash
 curl -u api@example.com:password \
@@ -190,49 +174,34 @@ curl -u api@example.com:password \
   }'
 ```
 
-### Пример: остаток по счёту
+В проводках нужны поля **`amount`** и **`type`** (`debit` / `credit`), суммы дебета и кредита должны совпадать.
+
+---
+
+## Swagger
+
+Интерактивная документация: **http://localhost:92/api/documentation**
+
+1. Нажать **Authorize**
+2. Username: `api@example.com`, Password: `password`
+3. Для POST сначала выполнить **GET /v1/accounts** и взять реальные `account_id`
+
+Перегенерация спецификации:
 
 ```bash
-curl -u api@example.com:password \
-  -H "Accept: application/json" \
-  http://localhost:92/api/v1/accounts/1/balance
+cd project && composer swagger
+# или в контейнере: php artisan l5-swagger:generate
 ```
 
 ---
 
-## Swagger / OpenAPI
+## Тестовые данные после seed
 
-| URL                                      | Описание                                 |
-| ---------------------------------------- | ---------------------------------------- |
-| http://localhost:92/api/documentation    | Swagger UI (интерактивная документация)  |
-| `project/storage/api-docs/api-docs.json` | Сгенерированная спецификация OpenAPI 3.0 |
+- счета «Блинчики», «Кекс», «Милка»
+- две сбалансированные транзакции
+- API-пользователь `api@example.com`
 
-Документация собирается из PHP-атрибутов в контроллерах API и общих схем в `app/OpenApi/OpenApiSpec.php`.
-
-### Перегенерация после изменений API
-
-```bash
-# локально
-cd project && php artisan l5-swagger:generate
-
-# или через Composer
-composer swagger
-
-# в Docker
-docker exec -it itpelag-php-fpm php artisan l5-swagger:generate
-```
-
-В Swagger UI можно авторизоваться через **Authorize** (Basic Auth: `api@example.com` / `password`) и выполнять запросы к API прямо из браузера.
-
----
-
-## Тестовые данные
-
-После `php artisan db:seed` в базе:
-
-- **3 счёта**: «Блинчики» (актив), «Кекс» (доход), «Милка» (расход)
-- **2 транзакции** с проводками
-- **API-пользователь** `api@example.com`
+Повторный seed не падает на дубликатах — сидеры идемпотентные.
 
 ---
 
@@ -240,36 +209,14 @@ docker exec -it itpelag-php-fpm php artisan l5-swagger:generate
 
 ```bash
 cd project
-php artisan test
-# или
 composer test
 ```
 
-Покрытие включает:
-
-- unit-тесты `LedgerService` (баланс, валидация)
-- feature-тесты REST API (CRUD, авторизация, остатки)
-- проверку сидеров
-
 ---
 
-## Стек технологий
+## Стек
 
-- PHP 8.4+, Laravel 13
-- MoonShine 4 + moonshine/import-export
-- PostgreSQL 14
-- darkaonline/l5-swagger (OpenAPI / Swagger UI)
-- Docker (nginx, php-fpm, postgres)
-
----
-
-## Структура репозитория
-
-| Каталог                            | Назначение                              |
-| ---------------------------------- | --------------------------------------- |
-| [`project/`](project/)             | Исходный код Laravel-приложения         |
-| [`docker/`](docker/)               | Docker Compose и конфигурация окружения |
-| [`project/tests/`](project/tests/) | PHPUnit-тесты                           |
+PHP 8.4+, Laravel 13, MoonShine 4, PostgreSQL 14, l5-swagger, Docker.
 
 Подробности по Laravel-части — в [`project/README.md`](project/README.md).
 
@@ -277,4 +224,4 @@ composer test
 
 ## Лицензия
 
-MIT (фреймворк Laravel — [MIT](https://opensource.org/licenses/MIT)).
+MIT.

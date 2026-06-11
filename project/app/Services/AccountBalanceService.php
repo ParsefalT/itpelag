@@ -43,7 +43,10 @@ final class AccountBalanceService
     private function sumByType(Account $account, string $type): int
     {
         return (int) round(
-            ((float) $account->journalEntries()->where("type", $type)->sum("amount")) * 100,
+            ((float) $account->journalEntries()
+                ->where("type", $type)
+                ->whereHas("transaction", static fn ($query) => $query->where("is_posted", true))
+                ->sum("amount")) * 100,
         );
     }
 

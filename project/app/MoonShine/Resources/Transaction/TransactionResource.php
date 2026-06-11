@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Transaction;
 
+use App\Exceptions\PostedTransactionException;
 use App\Models\Transaction;
 use App\MoonShine\Resources\Transaction\Pages\TransactionDetailPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionFormPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionIndexPage;
-use App\Exceptions\PostedTransactionException;
+use App\Services\TransactionEntryValidator;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
@@ -41,7 +42,7 @@ class TransactionResource extends ModelResource implements HasImportExportContra
 
     protected SortDirection $sortDirection = SortDirection::ASC;
 
-    protected ?PageType $redirectAfterSave = PageType::INDEX;
+    protected ?PageType $redirectAfterSave = PageType::FORM;
 
     /** @var list<string> */
     protected array $with = ["journalEntries.account"];
@@ -56,6 +57,28 @@ class TransactionResource extends ModelResource implements HasImportExportContra
             TransactionFormPage::class,
             TransactionDetailPage::class,
         ];
+    }
+
+    protected function afterUpdated(DataWrapperContract $item): DataWrapperContract
+    {
+        $this->assertBalancedWhenComplete($item);
+
+        return parent::afterUpdated($item);
+    }
+
+    private function assertBalancedWhenComplete(DataWrapperContract $item): void
+    {
+        $transaction = $item->getOriginal();
+
+        if (! $transaction instanceof Transaction || $transaction->isPosted()) {
+            return;
+        }
+
+        try {
+            app(TransactionEntryValidator::class)->assertBalancedWhenComplete($transaction);
+        } catch (\InvalidArgumentException $exception) {
+            throw new ResourceException($exception->getMessage());
+        }
     }
 
     protected function modifyQueryBuilder(Builder $builder): Builder

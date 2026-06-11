@@ -82,4 +82,35 @@ class AccountBalanceApiTest extends TestCase
             ->assertJsonPath("data.credit_total", "0.00")
             ->assertJsonPath("data.balance", "300.00");
     }
+
+    public function test_balance_excludes_unposted_transactions(): void
+    {
+        $user = User::factory()->create([
+            "email" => "api@example.com",
+            "password" => "password",
+        ]);
+
+        $account = Account::factory()->create([
+            "code" => "1010",
+            "name" => "Cash",
+            "type" => "asset",
+        ]);
+
+        $draftTransaction = Transaction::factory()->create(["is_posted" => false]);
+
+        JournalEntry::factory()->create([
+            "transaction_id" => $draftTransaction->id,
+            "account_id" => $account->id,
+            "amount" => 500,
+            "type" => TypeEntryEnum::DEBIT->value,
+        ]);
+
+        $response = $this->withBasicAuth($user->email, "password")
+            ->getJson("/api/v1/accounts/{$account->id}/balance");
+
+        $response
+            ->assertOk()
+            ->assertJsonPath("data.debit_total", "0.00")
+            ->assertJsonPath("data.balance", "0.00");
+    }
 }
