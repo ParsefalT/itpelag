@@ -14,6 +14,7 @@ use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
 use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\TypeEntryEnum;
+use Illuminate\Validation\Rule;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Fields\Relationships\BelongsToMany;
 use MoonShine\Support\ListOf;
@@ -69,7 +70,12 @@ class JournalEntrieFormPage extends FormPage
 
     protected function rules(DataWrapperContract $item): array
     {
-        return [];
+        return [
+            "amount" => ["required", "numeric", "gt:0"],
+            "type" => ["required", Rule::enum(TypeEntryEnum::class)],
+            "account_id" => ["required", "integer", "exists:accounts,id"],
+            "transaction_id" => ["required", "integer", "exists:transactions,id"],
+        ];
     }
 
     /**

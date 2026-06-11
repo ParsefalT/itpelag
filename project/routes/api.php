@@ -1,13 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AccountApiController;
 use App\Http\Controllers\Api\TransactionApiController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get("/user", function (Request $request) {
-    return $request->user();
-})->middleware("auth:sanctum");
-
-Route::prefix("v1")->group(function () {
-    Route::resource("/transactions", TransactionApiController::class);
+Route::middleware("auth.basic")->prefix("v1")->group(function (): void {
+    Route::apiResource("transactions", TransactionApiController::class);
+    Route::get("accounts", [AccountApiController::class, "index"]);
+    Route::get("accounts/{account}/balance", [AccountApiController::class, "balance"]);
 });

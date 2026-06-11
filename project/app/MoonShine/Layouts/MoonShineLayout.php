@@ -10,6 +10,7 @@ use MoonShine\ColorManager\ColorManager;
 use MoonShine\Contracts\ColorManager\ColorManagerContract;
 use MoonShine\Contracts\ColorManager\PaletteContract;
 use MoonShine\MenuManager\MenuItem;
+use App\MoonShine\Pages\TrialBalancePage;
 use App\MoonShine\Resources\Account\AccountResource;
 use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
@@ -49,6 +50,11 @@ final class MoonShineLayout extends AppLayout
                 JournalEntrieResource::class,
                 "JournalEntries",
                 "document-text",
+            ),
+            MenuItem::make(
+                TrialBalancePage::class,
+                "ОСВ",
+                "chart-bar",
             ),
         ];
     }

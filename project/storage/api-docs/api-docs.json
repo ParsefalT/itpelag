@@ -1,0 +1,591 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ITPelag Ledger API",
+        "description": "REST API учётной системы ITPelag. Создание транзакций с двойной записью и получение остатков по счетам.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/api",
+            "description": "Базовый URL API"
+        }
+    ],
+    "paths": {
+        "/v1/accounts": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Список счетов",
+                "description": "Возвращает id счетов для использования в поле account_id при создании транзакций.",
+                "operationId": "listAccounts",
+                "responses": {
+                    "200": {
+                        "description": "Список счетов",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Account"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/accounts/{account}/balance": {
+            "get": {
+                "tags": [
+                    "Accounts"
+                ],
+                "summary": "Остаток по счёту",
+                "description": "Возвращает обороты по дебету/кредиту и текущий сальдо с учётом типа счёта.",
+                "operationId": "getAccountBalance",
+                "parameters": [
+                    {
+                        "name": "account",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Остаток по счёту",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AccountBalanceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "404": {
+                        "description": "Счёт не найден"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/transactions": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Список транзакций",
+                "operationId": "listTransactions",
+                "responses": {
+                    "200": {
+                        "description": "Список транзакций с пагинацией"
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Создать транзакцию",
+                "operationId": "createTransaction",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreTransactionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Транзакция создана",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации или несбалансированные проводки",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ErrorResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ValidationErrorResponse"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        },
+        "/v1/transactions/{transaction}": {
+            "get": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Получить транзакцию",
+                "operationId": "showTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Транзакция",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionItemResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "404": {
+                        "description": "Не найдено"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Обновить транзакцию",
+                "description": "Доступно только для непроведённых транзакций.",
+                "operationId": "updateTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreTransactionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Транзакция обновлена",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TransactionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации или транзакция проведена",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "404": {
+                        "description": "Не найдено"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Удалить транзакцию",
+                "description": "Доступно только для непроведённых транзакций.",
+                "operationId": "deleteTransaction",
+                "parameters": [
+                    {
+                        "name": "transaction",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Транзакция удалена",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Транзакция проведена",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не авторизован"
+                    },
+                    "404": {
+                        "description": "Не найдено"
+                    }
+                },
+                "security": [
+                    {
+                        "basicAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Account": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 21
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "128"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Блинчики"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "asset"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "JournalEntryInput": {
+                "required": [
+                    "account_id",
+                    "amount",
+                    "type"
+                ],
+                "properties": {
+                    "account_id": {
+                        "description": "ID счёта из GET /v1/accounts (не код счёта).",
+                        "type": "integer",
+                        "example": 21
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 250
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "debit",
+                        "enum": [
+                            "debit",
+                            "credit"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "StoreTransactionRequest": {
+                "required": [
+                    "date",
+                    "description",
+                    "entries"
+                ],
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-11"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Оплата по счету"
+                    },
+                    "entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JournalEntryInput"
+                        },
+                        "minItems": 2
+                    }
+                },
+                "type": "object"
+            },
+            "JournalEntry": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "account_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "account_name": {
+                        "type": "string",
+                        "example": "Касса"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "example": "250.00"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "debit",
+                        "enum": [
+                            "debit",
+                            "credit"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "Transaction": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-06-11"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Оплата по счету"
+                    },
+                    "is_posted": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "journal_entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JournalEntry"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Транзакция успешно создана"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Transaction"
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionItemResponse": {
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/Transaction"
+                    }
+                },
+                "type": "object"
+            },
+            "AccountBalance": {
+                "properties": {
+                    "account_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "128"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Касса"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "asset"
+                    },
+                    "debit_total": {
+                        "type": "string",
+                        "example": "250.00"
+                    },
+                    "credit_total": {
+                        "type": "string",
+                        "example": "0.00"
+                    },
+                    "balance": {
+                        "type": "string",
+                        "example": "250.00"
+                    }
+                },
+                "type": "object"
+            },
+            "AccountBalanceResponse": {
+                "properties": {
+                    "data": {
+                        "$ref": "#/components/schemas/AccountBalance"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "properties": {
+                    "error": {
+                        "type": "string",
+                        "example": "Сумма дебета (100.00) должна быть равна сумме кредита (50.00)."
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationErrorResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The date field is required."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "MessageResponse": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Транзакция удалена"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "basicAuth": {
+                "type": "http",
+                "description": "HTTP Basic Authentication. Используйте email и пароль пользователя Laravel.",
+                "scheme": "basic"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Transactions",
+            "description": "Операции с транзакциями и проводками"
+        },
+        {
+            "name": "Accounts",
+            "description": "Остатки по счетам"
+        }
+    ]
+}

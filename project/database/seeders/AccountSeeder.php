@@ -13,25 +13,32 @@ class AccountSeeder extends Seeder
      */
     public function run(): void
     {
-        Account::create([
-            "name" => "Блинчики",
-            "code" => "128",
-            "type" => "asset",
-            "is_active" => true,
-        ]);
+        $accounts = [
+            [
+                "code" => "128",
+                "name" => "Блинчики",
+                "type" => "asset",
+                "is_active" => true,
+            ],
+            [
+                "code" => "200",
+                "name" => "Кекс",
+                "type" => "revenue",
+                "is_active" => true,
+            ],
+            [
+                "code" => "135",
+                "name" => "Милка",
+                "type" => "expense",
+                "is_active" => true,
+            ],
+        ];
 
-        Account::create([
-            "name" => "Кекс",
-            "code" => "200",
-            "type" => "revenue",
-            "is_active" => true,
-        ]);
-
-        Account::create([
-            "name" => "Милка",
-            "code" => "135",
-            "type" => "expense",
-            "is_active" => true,
-        ]);
+        foreach ($accounts as $account) {
+            Account::query()->updateOrCreate(
+                ["code" => $account["code"]],
+                $account,
+            );
+        }
     }
 }

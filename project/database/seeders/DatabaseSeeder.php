@@ -15,13 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::query()->updateOrCreate(
+            ["email" => "api@example.com"],
+            [
+                "name" => "API User",
+                "password" => "password",
+            ],
+        );
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-        //
         $this->call([
             AccountSeeder::class,
             TransactionSeeder::class,

@@ -60,6 +60,7 @@
 // }
 namespace App\Services;
 
+use App\Exceptions\PostedTransactionException;
 use App\Models\Transaction;
 use App\Models\JournalEntry;
 use App\TypeEntryEnum;
@@ -86,7 +87,7 @@ class LedgerService
                 ]);
             }
 
-            return $transaction->load("journalEntries.account");
+            return $transaction->refresh()->load("journalEntries.account");
         });
     }
 
@@ -98,6 +99,7 @@ class LedgerService
         array $data,
         array $entries,
     ): Transaction {
+        $this->ensureNotPosted($transaction);
         $this->validateEntries($entries);
 
         return DB::transaction(function () use ($transaction, $data, $entries) {
@@ -114,8 +116,24 @@ class LedgerService
                 ]);
             }
 
-            return $transaction->load("journalEntries.account");
+            return $transaction->refresh()->load("journalEntries.account");
         });
+    }
+
+    public function deleteTransaction(Transaction $transaction): void
+    {
+        if ($transaction->isPosted()) {
+            throw PostedTransactionException::delete();
+        }
+
+        $transaction->delete();
+    }
+
+    private function ensureNotPosted(Transaction $transaction): void
+    {
+        if ($transaction->isPosted()) {
+            throw PostedTransactionException::modify();
+        }
     }
 
     /**
@@ -129,20 +147,25 @@ class LedgerService
             );
         }
 
-        $debitSum = "0.00";
-        $creditSum = "0.00";
+        $debitSum = 0;
+        $creditSum = 0;
 
         foreach ($entries as $entry) {
+            $amount = (int) round(((float) $entry["amount"]) * 100);
+
             if ($entry["type"] === TypeEntryEnum::DEBIT->value) {
-                $debitSum = bcadd($debitSum, (string) $entry["amount"], 2);
+                $debitSum += $amount;
             } elseif ($entry["type"] === TypeEntryEnum::CREDIT->value) {
-                $creditSum = bcadd($creditSum, (string) $entry["amount"], 2);
+                $creditSum += $amount;
             }
         }
 
-        if (bccomp($debitSum, $creditSum, 2) !== 0) {
+        if ($debitSum !== $creditSum) {
+            $debitFormatted = number_format($debitSum / 100, 2, ".", "");
+            $creditFormatted = number_format($creditSum / 100, 2, ".", "");
+
             throw new \InvalidArgumentException(
-                "Сумма дебета ({$debitSum}) должна быть равна сумме кредита ({$creditSum}).",
+                "Сумма дебета ({$debitFormatted}) должна быть равна сумме кредита ({$creditFormatted}).",
             );
         }
     }
