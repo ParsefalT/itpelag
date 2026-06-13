@@ -180,7 +180,7 @@ class TransactionApiTest extends TestCase
             ->assertJsonCount(2, "data.journal_entries");
     }
 
-    public function test_update_changes_unposted_transaction(): void
+    public function test_update_rejects_posted_transaction(): void
     {
         $debitAccount = Account::factory()->create();
         $creditAccount = Account::factory()->create();
@@ -204,8 +204,6 @@ class TransactionApiTest extends TestCase
             ])
             ->json("data.id");
 
-        Transaction::query()->whereKey($transactionId)->update(["is_posted" => false]);
-
         $response = $this->withBasicAuth($this->user->email, "password")
             ->putJson("/api/v1/transactions/{$transactionId}", [
                 "date" => "2026-06-12",
@@ -224,17 +222,10 @@ class TransactionApiTest extends TestCase
                 ],
             ]);
 
-        $response
-            ->assertOk()
-            ->assertJsonPath("data.description", "After update");
-
-        $this->assertDatabaseHas("transactions", [
-            "id" => $transactionId,
-            "description" => "After update",
-        ]);
+        $response->assertUnprocessable();
     }
 
-    public function test_delete_removes_unposted_transaction(): void
+    public function test_delete_rejects_posted_transaction(): void
     {
         $debitAccount = Account::factory()->create();
         $creditAccount = Account::factory()->create();
@@ -258,12 +249,10 @@ class TransactionApiTest extends TestCase
             ])
             ->json("data.id");
 
-        Transaction::query()->whereKey($transactionId)->update(["is_posted" => false]);
-
         $this->withBasicAuth($this->user->email, "password")
             ->deleteJson("/api/v1/transactions/{$transactionId}")
-            ->assertOk();
+            ->assertUnprocessable();
 
-        $this->assertDatabaseMissing("transactions", ["id" => $transactionId]);
+        $this->assertDatabaseHas("transactions", ["id" => $transactionId]);
     }
 }

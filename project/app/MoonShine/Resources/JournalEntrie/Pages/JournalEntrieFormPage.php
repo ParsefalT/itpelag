@@ -11,7 +11,6 @@ use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
-use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\TypeEntryEnum;
 use Illuminate\Validation\Rule;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
@@ -42,12 +41,6 @@ class JournalEntrieFormPage extends FormPage
                     formatted: static fn ($model) => $model->name,
                     resource: AccountResource::class,
                 )->required(),
-                BelongsTo::make(
-                    "Транзакция",
-                    "transaction",
-                    formatted: static fn ($model) => $model->description,
-                    resource: TransactionResource::class,
-                )->required(),
             ]),
         ];
     }
@@ -68,7 +61,6 @@ class JournalEntrieFormPage extends FormPage
             "amount" => ["required", "numeric", "gt:0"],
             "type" => ["required", Rule::enum(TypeEntryEnum::class)],
             "account_id" => ["required", "integer", "exists:accounts,id"],
-            "transaction_id" => ["required", "integer", "exists:transactions,id"],
         ];
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Support\Money;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,7 +23,7 @@ class JournalEntryResource extends JsonResource
                 "account",
                 fn (): string => $this->account->name,
             ),
-            "amount" => number_format((float) $this->amount, 2, ".", ""),
+            "amount" => Money::fromCents(Money::toCents($this->amount)),
             "type" => $this->type->value,
         ];
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Support\Money;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -156,21 +157,21 @@ final class TrialBalanceService
 
     private function formatAmount(mixed $value): string
     {
-        return $this->fromCents((int) round(((float) $value) * 100));
+        return Money::fromCents(Money::toCents($value));
     }
 
     private function add(string $left, string $right): string
     {
-        return $this->fromCents($this->toCents($left) + $this->toCents($right));
+        return Money::fromCents(Money::toCents($left) + Money::toCents($right));
     }
 
     private function toCents(string $amount): int
     {
-        return (int) round(((float) $amount) * 100);
+        return Money::toCents($amount);
     }
 
     private function fromCents(int $cents): string
     {
-        return number_format($cents / 100, 2, ".", "");
+        return Money::fromCents($cents);
     }
 }

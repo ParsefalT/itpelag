@@ -63,6 +63,7 @@ namespace App\Services;
 use App\Exceptions\PostedTransactionException;
 use App\Models\Transaction;
 use App\Models\JournalEntry;
+use App\Support\Money;
 use App\TypeEntryEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -161,7 +162,7 @@ class LedgerService
         $creditSum = 0;
 
         foreach ($entries as $entry) {
-            $amount = (int) round(((float) $entry["amount"]) * 100);
+            $amount = Money::toCents($entry["amount"]);
 
             if ($entry["type"] === TypeEntryEnum::DEBIT->value) {
                 $debitSum += $amount;
@@ -171,8 +172,8 @@ class LedgerService
         }
 
         if ($debitSum !== $creditSum) {
-            $debitFormatted = number_format($debitSum / 100, 2, ".", "");
-            $creditFormatted = number_format($creditSum / 100, 2, ".", "");
+            $debitFormatted = Money::fromCents($debitSum);
+            $creditFormatted = Money::fromCents($creditSum);
 
             throw new \InvalidArgumentException(
                 "Сумма дебета ({$debitFormatted}) должна быть равна сумме кредита ({$creditFormatted}).",

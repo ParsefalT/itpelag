@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Money;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -48,27 +49,18 @@ class Transaction extends Model
 
     public function getSumTotalDebit(): string
     {
-        return $this->formatAmount(
-            (float) $this->journalEntries()->where("type", "debit")->sum("amount"),
-        );
+        return Money::fromCents($this->sumAmountByType("debit"));
     }
 
     public function getSumTotalCredit(): string
     {
-        return $this->formatAmount(
-            (float) $this->journalEntries()->where("type", "credit")->sum("amount"),
-        );
+        return Money::fromCents($this->sumAmountByType("credit"));
     }
 
     private function sumAmountByType(string $type): int
     {
-        return (int) round(
-            ((float) $this->journalEntries()->where("type", $type)->sum("amount")) * 100,
-        );
-    }
+        $sum = $this->journalEntries()->where("type", $type)->sum("amount");
 
-    private function formatAmount(float $value): string
-    {
-        return number_format($value, 2, ".", "");
+        return Money::toCents($sum);
     }
 }

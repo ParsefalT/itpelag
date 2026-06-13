@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\MoonShine\Resources\Transaction\Pages\TransactionDetailPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionFormPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionIndexPage;
+use App\Services\LedgerService;
 use App\Services\TransactionEntryValidator;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use MoonShine\Contracts\Core\PageContract;
@@ -66,6 +67,13 @@ class TransactionResource extends ModelResource implements HasImportExportContra
         return parent::afterUpdated($item);
     }
 
+    protected function beforeCreating(DataWrapperContract $item): DataWrapperContract
+    {
+        $this->assertEntriesFromRequest();
+
+        return parent::beforeCreating($item);
+    }
+
     private function assertBalancedWhenComplete(DataWrapperContract $item): void
     {
         $transaction = $item->getOriginal();
@@ -114,6 +122,7 @@ class TransactionResource extends ModelResource implements HasImportExportContra
     protected function beforeUpdating(DataWrapperContract $item): DataWrapperContract
     {
         $this->ensureTransactionMutable($item);
+        $this->assertEntriesFromRequest();
 
         return parent::beforeUpdating($item);
     }
@@ -145,6 +154,30 @@ class TransactionResource extends ModelResource implements HasImportExportContra
 
         if ($transaction instanceof Transaction && $transaction->isPosted()) {
             throw new ResourceException(PostedTransactionException::modify()->getMessage());
+        }
+    }
+
+    private function assertEntriesFromRequest(): void
+    {
+        $entries = request()->input("journalEntries")
+            ?? request()->input("journal_entries");
+
+        if (! is_array($entries)) {
+            throw new ResourceException("Проводки обязательны для транзакции.");
+        }
+
+        $normalized = array_map(
+            static fn (array $entry): array => [
+                "amount" => $entry["amount"] ?? 0,
+                "type" => $entry["type"] ?? "",
+            ],
+            array_values(array_filter($entries, "is_array")),
+        );
+
+        try {
+            app(LedgerService::class)->validateEntries($normalized);
+        } catch (\InvalidArgumentException $exception) {
+            throw new ResourceException($exception->getMessage());
         }
     }
 

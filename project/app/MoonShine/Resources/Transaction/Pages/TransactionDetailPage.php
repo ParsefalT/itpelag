@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Transaction\Pages;
 
-use App\Models\Transaction;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
 use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Contracts\UI\ComponentContract;
@@ -38,16 +37,10 @@ class TransactionDetailPage extends DetailPage
                 "journalEntries",
                 null,
                 JournalEntrieResource::class,
-            )->creatable(fn (): bool => ! $this->isCurrentTransactionPosted()),
+            )->creatable(false),
         ];
     }
 
-    private function isCurrentTransactionPosted(): bool
-    {
-        $transaction = $this->getResource()->getItem()?->getOriginal();
-
-        return $transaction instanceof Transaction && $transaction->isPosted();
-    }
     protected function filters(): iterable
     {
         return [Text::make("Type", "journalEntries")];

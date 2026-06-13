@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Account;
+use App\Support\Money;
 use App\TypeAccountEnum;
 
 final class AccountBalanceService
@@ -42,12 +43,12 @@ final class AccountBalanceService
 
     private function sumByType(Account $account, string $type): int
     {
-        return (int) round(
-            ((float) $account->journalEntries()
-                ->where("type", $type)
-                ->whereHas("transaction", static fn ($query) => $query->where("is_posted", true))
-                ->sum("amount")) * 100,
-        );
+        $sum = $account->journalEntries()
+            ->where("type", $type)
+            ->whereHas("transaction", static fn ($query) => $query->where("is_posted", true))
+            ->sum("amount");
+
+        return Money::toCents($sum);
     }
 
     private function isDebitNormal(TypeAccountEnum $type): bool
@@ -57,6 +58,6 @@ final class AccountBalanceService
 
     private function fromCents(int $cents): string
     {
-        return number_format($cents / 100, 2, ".", "");
+        return Money::fromCents($cents);
     }
 }

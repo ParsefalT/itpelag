@@ -48,10 +48,6 @@ final class TransactionEntryValidator
     {
         $entries = $this->entriesForTransaction($transaction, $except, $replacement);
 
-        if (count($entries) < 2) {
-            return;
-        }
-
         app(LedgerService::class)->validateEntries($entries);
     }
 }

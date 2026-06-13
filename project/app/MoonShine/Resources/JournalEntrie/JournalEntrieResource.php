@@ -47,13 +47,15 @@ class JournalEntrieResource extends ModelResource
             return false;
         }
 
-        if (! in_array($ability, [Ability::UPDATE, Ability::DELETE], true)) {
+        if (in_array($ability, [Ability::CREATE, Ability::UPDATE, Ability::DELETE], true)) {
+            return false;
+        }
+
+        if ($ability !== Ability::VIEW) {
             return true;
         }
 
-        $entry = $this->getItem()?->getOriginal();
-
-        return ! ($entry instanceof JournalEntry && $this->isParentPosted($entry));
+        return true;
     }
 
     protected function beforeCreating(DataWrapperContract $item): DataWrapperContract

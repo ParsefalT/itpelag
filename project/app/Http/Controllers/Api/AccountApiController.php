@@ -66,7 +66,7 @@ class AccountApiController extends Controller
         $accounts = Account::query()
             ->where("is_active", true)
             ->orderBy("code")
-            ->get();
+            ->paginate(50);
 
         return AccountResource::collection($accounts);
     }

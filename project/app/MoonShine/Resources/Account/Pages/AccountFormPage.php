@@ -19,6 +19,7 @@ use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\Select;
 use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 /**
@@ -56,8 +57,14 @@ class AccountFormPage extends FormPage
 
     public function rules($item): array
     {
+        $account = $item->getOriginal();
+
         return [
-            "code" => "required|string|unique:accounts,code",
+            "code" => [
+                "required",
+                "string",
+                Rule::unique("accounts", "code")->ignore($account?->id),
+            ],
             "name" => "required|string|max:255",
             "type" => "required|string",
         ];

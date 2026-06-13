@@ -3,23 +3,27 @@ test:
 
 
 # command about docker
-build:
-	cd docker/ && docker compose build && docker compose up -d
-
-start:
+up:
 	cd docker/ && docker compose up -d
+	echo http://localhost:92
 
-restart:
-	cd docker/ && docker compose restart
-
-stop:
+down:
 	cd docker/ && docker compose down
-
-bash:
-	cd docker/ && docker container exec -it itpelag-php-fpm bash
 
 ps:
 	cd docker/ && docker compose ps
 
+bash:
+	cd docker/ && docker container exec -it itpelag-php-fpm bash
+
 db:
 	cd docker/ && docker container exec -it itpelag-pgsql bash
+
+generateKey:
+	cd docker/ && docker container exec -it itpelag-php-fpm bash "php artisan key:generate"
+
+migrate:
+	cd docker/ && docker container exec -it itpelag-php-fpm bash "php artisan make migrate"
+
+createUser:
+	cd docker/ && docker container exec -it itpelag-php-fpm bash "php artisan moonshine:user"
