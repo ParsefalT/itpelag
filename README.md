@@ -48,6 +48,7 @@ php artisan migrate
 php artisan db:seed
 php artisan moonshine:user
 php artisan l5-swagger:generate
+php artisan storage:link
 ```
 
 `php artisan moonshine:user` — создать администратора для входа в `/admin`.
