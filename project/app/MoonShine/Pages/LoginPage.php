@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Pages;
 
-use MoonShine\Laravel\Pages\Page;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Core\Attributes\Layout;
 use MoonShine\Crud\Forms\LoginForm;
 use MoonShine\Laravel\Layouts\LoginLayout;
+use MoonShine\Laravel\Pages\Page;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 
 #[SkipMenu]
@@ -25,7 +25,7 @@ class LoginPage extends Page
                 'login',
                 LoginForm::class,
                 action: $this->getRouter()->to('authenticate'),
-                core: $this->getCore()
+                core: $this->getCore(),
             ),
         ];
     }

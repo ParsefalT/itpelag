@@ -17,14 +17,14 @@ class JournalEntryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            "account_id" => $this->account_id,
-            "account_name" => $this->whenLoaded(
-                "account",
+            'id' => $this->id,
+            'account_id' => $this->account_id,
+            'account_name' => $this->whenLoaded(
+                'account',
                 fn (): string => $this->account->name,
             ),
-            "amount" => Money::fromCents(Money::toCents($this->amount)),
-            "type" => $this->type->value,
+            'amount' => Money::fromCents(Money::toCents($this->amount)),
+            'type' => $this->type->value,
         ];
     }
 }

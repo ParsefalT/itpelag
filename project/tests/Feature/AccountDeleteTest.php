@@ -22,19 +22,19 @@ class AccountDeleteTest extends TestCase
     {
         $account = Account::factory()->create();
         $otherAccount = Account::factory()->create();
-        $transaction = Transaction::factory()->create(["is_posted" => true]);
+        $transaction = Transaction::factory()->create(['is_posted' => true]);
 
         JournalEntry::factory()->create([
-            "transaction_id" => $transaction->id,
-            "account_id" => $account->id,
-            "amount" => 100,
-            "type" => TypeEntryEnum::DEBIT->value,
+            'transaction_id' => $transaction->id,
+            'account_id' => $account->id,
+            'amount' => 100,
+            'type' => TypeEntryEnum::DEBIT->value,
         ]);
         JournalEntry::factory()->create([
-            "transaction_id" => $transaction->id,
-            "account_id" => $otherAccount->id,
-            "amount" => 100,
-            "type" => TypeEntryEnum::CREDIT->value,
+            'transaction_id' => $transaction->id,
+            'account_id' => $otherAccount->id,
+            'amount' => 100,
+            'type' => TypeEntryEnum::CREDIT->value,
         ]);
 
         $resource = app(AccountResource::class);
@@ -54,6 +54,6 @@ class AccountDeleteTest extends TestCase
         $resource->setItem($account);
 
         $this->assertTrue($resource->delete($resource->getCaster()->cast($account)));
-        $this->assertDatabaseMissing("accounts", ["id" => $account->id]);
+        $this->assertDatabaseMissing('accounts', ['id' => $account->id]);
     }
 }

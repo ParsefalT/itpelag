@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Account\Pages;
 
-use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\Account\AccountResource;
 use App\TypeAccountEnum;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Switcher;
@@ -29,10 +29,10 @@ class AccountDetailPage extends DetailPage
     {
         return [
             ID::make()->sortable(),
-            Text::make("Name", "name")->required(),
-            Text::make("Code", "code")->required(),
-            Enum::make("Type", "type")->attach(TypeAccountEnum::class),
-            Switcher::make("Active", "is_active"),
+            Text::make('Name', 'name')->required(),
+            Text::make('Code', 'code')->required(),
+            Enum::make('Type', 'type')->attach(TypeAccountEnum::class),
+            Switcher::make('Active', 'is_active'),
         ];
     }
 

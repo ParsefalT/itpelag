@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\Transaction\Pages;
 
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
-use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\Transaction\TransactionResource;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Laravel\Fields\Relationships\HasMany;
+use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Text;
 use Throwable;
 
@@ -26,15 +26,15 @@ class TransactionDetailPage extends DetailPage
     protected function fields(): iterable
     {
         return [
-            Text::make("Дата", "date"),
-            Text::make("Описание", "description"),
-            Text::make("Статус", "is_posted")
+            Text::make('Дата', 'date'),
+            Text::make('Описание', 'description'),
+            Text::make('Статус', 'is_posted')
                 ->modifyRawValue(
-                    static fn (bool $value): string => $value ? "Проведена" : "Черновик",
+                    static fn (bool $value): string => $value ? 'Проведена' : 'Черновик',
                 ),
             HasMany::make(
-                "Проводки",
-                "journalEntries",
+                'Проводки',
+                'journalEntries',
                 null,
                 JournalEntrieResource::class,
             )->creatable(false),
@@ -43,12 +43,12 @@ class TransactionDetailPage extends DetailPage
 
     protected function filters(): iterable
     {
-        return [Text::make("Type", "journalEntries")];
+        return [Text::make('Type', 'journalEntries')];
     }
 
     public function getTitle(): string
     {
-        return __("Transaction");
+        return __('Transaction');
     }
 
     protected function buttons(): ListOf

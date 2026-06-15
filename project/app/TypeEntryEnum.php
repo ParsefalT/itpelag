@@ -4,6 +4,6 @@ namespace App;
 
 enum TypeEntryEnum: string
 {
-    case DEBIT = "debit";
-    case CREDIT = "credit";
+    case DEBIT = 'debit';
+    case CREDIT = 'credit';
 }

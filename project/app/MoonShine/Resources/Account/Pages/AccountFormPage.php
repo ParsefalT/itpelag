@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\Account\Pages;
 
-use MoonShine\Laravel\Pages\Crud\FormPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\Contracts\UI\FormBuilderContract;
-use MoonShine\UI\Components\FormBuilder;
-use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\Account\AccountResource;
 use App\TypeAccountEnum;
+use Illuminate\Validation\Rule;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Contracts\UI\FormBuilderContract;
+use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\Support\ListOf;
-use MoonShine\UI\Fields\ID;
-use MoonShine\UI\Components\Layout\Box;
+use MoonShine\UI\Components\FormBuilder;
 use MoonShine\UI\Fields\Enum;
-use MoonShine\UI\Fields\Select;
+use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Switcher;
 use MoonShine\UI\Fields\Text;
-use Illuminate\Validation\Rule;
 use Throwable;
 
 /**
@@ -27,7 +24,7 @@ use Throwable;
  */
 class AccountFormPage extends FormPage
 {
-    protected string $title = "Create account";
+    protected string $title = 'Create account';
     /**
      * @return list<ComponentContract|FieldContract>
      */
@@ -35,13 +32,13 @@ class AccountFormPage extends FormPage
     {
         return [
             ID::make()->sortable(),
-            Text::make("Name", "name")->placeholder("type name of account"),
-            Text::make("Code", "code")
+            Text::make('Name', 'name')->placeholder('type name of account'),
+            Text::make('Code', 'code')
                 ->required()
-                ->placeholder("type unique code"),
+                ->placeholder('type unique code'),
 
-            Enum::make("Type", "type")->attach(TypeAccountEnum::class),
-            Switcher::make("Active", "is_active")->default(false),
+            Enum::make('Type', 'type')->attach(TypeAccountEnum::class),
+            Switcher::make('Active', 'is_active')->default(false),
         ];
     }
 
@@ -60,13 +57,13 @@ class AccountFormPage extends FormPage
         $account = $item->getOriginal();
 
         return [
-            "code" => [
-                "required",
-                "string",
-                Rule::unique("accounts", "code")->ignore($account?->id),
+            'code' => [
+                'required',
+                'string',
+                Rule::unique('accounts', 'code')->ignore($account?->id),
             ],
-            "name" => "required|string|max:255",
-            "type" => "required|string",
+            'name' => 'required|string|max:255',
+            'type' => 'required|string',
         ];
     }
 

@@ -7,20 +7,20 @@ namespace App\MoonShine\Resources\Transaction\Pages;
 use App\Models\Transaction;
 use App\MoonShine\Resources\Account\AccountResource;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
-use MoonShine\Laravel\Pages\Crud\FormPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\Contracts\UI\FormBuilderContract;
-use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\TypeEntryEnum;
 use Illuminate\Validation\Rule;
+use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
 use MoonShine\Laravel\Fields\Relationships\RelationRepeater;
+use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\Support\ListOf;
-use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Date;
 use MoonShine\UI\Fields\Enum;
+use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Number;
 use MoonShine\UI\Fields\Text;
 
@@ -36,20 +36,20 @@ class TransactionFormPage extends FormPage
     {
         return [
             ID::make()->sortable(),
-            Date::make("Дата", "date")->required(),
-            Text::make("Описание", "description")->required(),
+            Date::make('Дата', 'date')->required(),
+            Text::make('Описание', 'description')->required(),
             RelationRepeater::make(
-                "Проводки",
-                "journalEntries",
+                'Проводки',
+                'journalEntries',
                 resource: JournalEntrieResource::class,
             )
                 ->fields([
                     ID::make(),
-                    Number::make("Сумма", "amount")->min(0.01)->step(0.01)->required(),
-                    Enum::make("Тип", "type")->attach(TypeEntryEnum::class)->required(),
+                    Number::make('Сумма', 'amount')->min(0.01)->step(0.01)->required(),
+                    Enum::make('Тип', 'type')->attach(TypeEntryEnum::class)->required(),
                     BelongsTo::make(
-                        "Счёт",
-                        "account",
+                        'Счёт',
+                        'account',
                         formatted: static fn ($model) => $model->name,
                         resource: AccountResource::class,
                     )->required(),
@@ -84,12 +84,12 @@ class TransactionFormPage extends FormPage
     protected function rules(DataWrapperContract $item): array
     {
         return [
-            "date" => "required|date",
-            "description" => "required|string|max:255",
-            "journalEntries" => ["required", "array", "min:2"],
-            "journalEntries.*.amount" => ["required", "numeric", "gt:0"],
-            "journalEntries.*.type" => ["required", Rule::enum(TypeEntryEnum::class)],
-            "journalEntries.*.account_id" => ["required", "integer", "exists:accounts,id"],
+            'date' => 'required|date',
+            'description' => 'required|string|max:255',
+            'journalEntries' => ['required', 'array', 'min:2'],
+            'journalEntries.*.amount' => ['required', 'numeric', 'gt:0'],
+            'journalEntries.*.type' => ['required', Rule::enum(TypeEntryEnum::class)],
+            'journalEntries.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
         ];
     }
 

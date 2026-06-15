@@ -16,10 +16,10 @@ class JournalEntryFactory extends Factory
     public function definition(): array
     {
         return [
-            "transaction_id" => Transaction::factory(),
-            "account_id" => Account::factory(),
-            "amount" => fake()->randomFloat(2, 10, 1000),
-            "type" => fake()->randomElement(TypeEntryEnum::cases())->value,
+            'transaction_id' => Transaction::factory(),
+            'account_id' => Account::factory(),
+            'amount' => fake()->randomFloat(2, 10, 1000),
+            'type' => fake()->randomElement(TypeEntryEnum::cases())->value,
         ];
     }
 }

@@ -6,7 +6,6 @@ namespace Tests\Feature;
 
 use App\Models\Account;
 use App\Models\Transaction;
-use App\TypeEntryEnum;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,7 +21,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertGreaterThanOrEqual(2, Transaction::count());
 
         Transaction::query()
-            ->with("journalEntries")
+            ->with('journalEntries')
             ->each(function (Transaction $transaction): void {
                 $this->assertGreaterThanOrEqual(
                     2,

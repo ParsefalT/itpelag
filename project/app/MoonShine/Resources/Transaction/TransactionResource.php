@@ -6,6 +6,7 @@ namespace App\MoonShine\Resources\Transaction;
 
 use App\Exceptions\PostedTransactionException;
 use App\Models\Transaction;
+use App\MoonShine\Resources\BaseResource;
 use App\MoonShine\Resources\Transaction\Pages\TransactionDetailPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionFormPage;
 use App\MoonShine\Resources\Transaction\Pages\TransactionIndexPage;
@@ -19,7 +20,6 @@ use MoonShine\Crud\Handlers\Handler;
 use MoonShine\ImportExport\Contracts\HasImportExportContract;
 use MoonShine\ImportExport\ExportHandler;
 use MoonShine\ImportExport\Traits\ImportExportConcern;
-use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Support\Enums\Ability;
 use MoonShine\Support\Enums\PageType;
 use MoonShine\Support\Enums\SortDirection;
@@ -31,22 +31,22 @@ use MoonShine\UI\Fields\Text;
 /**
  * @extends ModelResource<Transaction, TransactionIndexPage, TransactionFormPage, TransactionDetailPage>
  */
-class TransactionResource extends ModelResource implements HasImportExportContract
+class TransactionResource extends BaseResource implements HasImportExportContract
 {
     use ImportExportConcern;
 
     protected string $model = Transaction::class;
 
-    protected string $title = "Transactions";
+    protected string $title = 'Transactions';
 
-    protected string $sortColumn = "id";
+    protected string $sortColumn = 'id';
 
     protected SortDirection $sortDirection = SortDirection::ASC;
 
     protected ?PageType $redirectAfterSave = PageType::FORM;
 
     /** @var list<string> */
-    protected array $with = ["journalEntries.account"];
+    protected array $with = ['journalEntries.account'];
 
     /**
      * @return list<class-string<PageContract>>
@@ -91,13 +91,13 @@ class TransactionResource extends ModelResource implements HasImportExportContra
 
     protected function modifyQueryBuilder(Builder $builder): Builder
     {
-        $accountId = data_get($this->getFilterParams(), "account_id")
-            ?? data_get($this->getFilterParams(), "accounts");
+        $accountId = data_get($this->getFilterParams(), 'account_id')
+            ?? data_get($this->getFilterParams(), 'accounts');
 
         if (filled($accountId)) {
             $builder->whereHas(
-                "journalEntries",
-                static fn (Builder $query) => $query->where("account_id", $accountId),
+                'journalEntries',
+                static fn (Builder $query) => $query->where('account_id', $accountId),
             );
         }
 
@@ -137,8 +137,8 @@ class TransactionResource extends ModelResource implements HasImportExportContra
     protected function beforeMassDeleting(array $ids): void
     {
         $hasPosted = Transaction::query()
-            ->whereIn("id", $ids)
-            ->where("is_posted", true)
+            ->whereIn('id', $ids)
+            ->where('is_posted', true)
             ->exists();
 
         if ($hasPosted) {
@@ -159,19 +159,19 @@ class TransactionResource extends ModelResource implements HasImportExportContra
 
     private function assertEntriesFromRequest(): void
     {
-        $entries = request()->input("journalEntries")
-            ?? request()->input("journal_entries");
+        $entries = request()->input('journalEntries')
+            ?? request()->input('journal_entries');
 
         if (! is_array($entries)) {
-            throw new ResourceException("Проводки обязательны для транзакции.");
+            throw new ResourceException('Проводки обязательны для транзакции.');
         }
 
         $normalized = array_map(
             static fn (array $entry): array => [
-                "amount" => $entry["amount"] ?? 0,
-                "type" => $entry["type"] ?? "",
+                'amount' => $entry['amount'] ?? 0,
+                'type' => $entry['type'] ?? '',
             ],
-            array_values(array_filter($entries, "is_array")),
+            array_values(array_filter($entries, 'is_array')),
         );
 
         try {
@@ -191,19 +191,19 @@ class TransactionResource extends ModelResource implements HasImportExportContra
      */
     protected function handlers(): ListOf
     {
-        $filename = sprintf("transactions_%s", date("Ymd-His"));
+        $filename = sprintf('transactions_%s', date('Ymd-His'));
 
         return new ListOf(Handler::class, [
-            ExportHandler::make("Экспорт Excel")
-                ->alias("export-excel")
+            ExportHandler::make('Экспорт Excel')
+                ->alias('export-excel')
                 ->filename($filename)
-                ->icon("document-arrow-down"),
-            ExportHandler::make("Экспорт CSV")
-                ->alias("export-csv")
+                ->icon('document-arrow-down'),
+            ExportHandler::make('Экспорт CSV')
+                ->alias('export-csv')
                 ->csv()
-                ->delimiter(";")
+                ->delimiter(';')
                 ->filename($filename)
-                ->icon("table-cells"),
+                ->icon('table-cells'),
         ]);
     }
 
@@ -211,29 +211,29 @@ class TransactionResource extends ModelResource implements HasImportExportContra
     {
         return [
             ID::make(),
-            Date::make("Дата", "date")->format("d.m.Y"),
-            Text::make("Описание", "description"),
-            Text::make("Дебет", "debit_total")
+            Date::make('Дата', 'date')->format('d.m.Y'),
+            Text::make('Описание', 'description'),
+            Text::make('Дебет', 'debit_total')
                 ->modifyRawValue(
                     static fn (mixed $raw, mixed $original): string => $original instanceof Transaction
                         ? $original->getSumTotalDebit()
-                        : "",
+                        : '',
                 ),
-            Text::make("Кредит", "credit_total")
+            Text::make('Кредит', 'credit_total')
                 ->modifyRawValue(
                     static fn (mixed $raw, mixed $original): string => $original instanceof Transaction
                         ? $original->getSumTotalCredit()
-                        : "",
+                        : '',
                 ),
-            Text::make("Счета", "account_names")
+            Text::make('Счета', 'account_names')
                 ->modifyRawValue(
                     static fn (mixed $raw, mixed $original): string => $original instanceof Transaction
                         ? $original->journalEntries
-                            ->pluck("account.name")
+                            ->pluck('account.name')
                             ->filter()
                             ->unique()
-                            ->implode(", ")
-                        : "",
+                            ->implode(', ')
+                        : '',
                 ),
         ];
     }

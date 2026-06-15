@@ -11,7 +11,7 @@ final class AccountInUseException extends RuntimeException
     public static function delete(): self
     {
         return new self(
-            "Нельзя удалить счёт: по нему есть проводки. Деактивируйте счёт или удалите связанные транзакции.",
+            'Нельзя удалить счёт: по нему есть проводки. Деактивируйте счёт или удалите связанные транзакции.',
         );
     }
 }

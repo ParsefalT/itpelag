@@ -8,15 +8,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
+/**
+ * @property int $id
+ * @property string $description
+ * @property \Illuminate\Support\Carbon $date
+ * @property bool $is_posted
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @method static self create(array $attributes = [])
+ */
 class Transaction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ["date", "description", "is_posted"];
+    protected $fillable = ['date', 'description', 'is_posted'];
 
     protected $casts = [
-        "date" => "date",
-        "is_posted" => "boolean",
+        'date' => 'date',
+        'is_posted' => 'boolean',
     ];
 
     public function journalEntries(): HasMany
@@ -41,25 +51,25 @@ class Transaction extends Model
 
     public function isBalanced(): bool
     {
-        $debitTotal = $this->sumAmountByType("debit");
-        $creditTotal = $this->sumAmountByType("credit");
+        $debitTotal = $this->sumAmountByType('debit');
+        $creditTotal = $this->sumAmountByType('credit');
 
         return $debitTotal === $creditTotal;
     }
 
     public function getSumTotalDebit(): string
     {
-        return Money::fromCents($this->sumAmountByType("debit"));
+        return Money::fromCents($this->sumAmountByType('debit'));
     }
 
     public function getSumTotalCredit(): string
     {
-        return Money::fromCents($this->sumAmountByType("credit"));
+        return Money::fromCents($this->sumAmountByType('credit'));
     }
 
     private function sumAmountByType(string $type): int
     {
-        $sum = $this->journalEntries()->where("type", $type)->sum("amount");
+        $sum = $this->journalEntries()->where('type', $type)->sum('amount');
 
         return Money::toCents($sum);
     }

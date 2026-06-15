@@ -18,24 +18,32 @@ final class TransactionEntryValidator
         ?JournalEntry $except = null,
         ?JournalEntry $replacement = null,
     ): array {
-        $entries = $transaction->journalEntries()
+        $entries = [];
+
+        $journalEntries = $transaction->journalEntries()
             ->when(
                 $except?->exists,
                 static fn ($query) => $query->whereKeyNot($except->id),
             )
-            ->get()
-            ->map(static fn (JournalEntry $entry): array => [
-                "amount" => $entry->amount,
-                "type" => $entry->type instanceof TypeEntryEnum
+            ->get();
+
+        foreach ($journalEntries as $entry) {
+            if (! $entry instanceof JournalEntry) {
+                continue;
+            }
+
+            $entries[] = [
+                'amount' => $entry->amount,
+                'type' => $entry->type instanceof TypeEntryEnum
                     ? $entry->type->value
                     : (string) $entry->type,
-            ])
-            ->all();
+            ];
+        }
 
         if ($replacement !== null) {
             $entries[] = [
-                "amount" => $replacement->amount,
-                "type" => $replacement->type instanceof TypeEntryEnum
+                'amount' => $replacement->amount,
+                'type' => $replacement->type instanceof TypeEntryEnum
                     ? $replacement->type->value
                     : (string) $replacement->type,
             ];

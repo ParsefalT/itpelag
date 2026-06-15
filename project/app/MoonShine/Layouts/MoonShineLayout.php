@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Layouts;
 
-use MoonShine\Laravel\Layouts\AppLayout;
-use MoonShine\ColorManager\Palettes\PurplePalette;
-use MoonShine\ColorManager\ColorManager;
-use MoonShine\Contracts\ColorManager\ColorManagerContract;
-use MoonShine\Contracts\ColorManager\PaletteContract;
-use MoonShine\MenuManager\MenuItem;
 use App\MoonShine\Pages\TrialBalancePage;
 use App\MoonShine\Resources\Account\AccountResource;
-use App\MoonShine\Resources\Transaction\TransactionResource;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
+use App\MoonShine\Resources\Transaction\TransactionResource;
+use MoonShine\ColorManager\ColorManager;
+use MoonShine\ColorManager\Palettes\PurplePalette;
+use MoonShine\Contracts\ColorManager\ColorManagerContract;
+use MoonShine\Contracts\ColorManager\PaletteContract;
+use MoonShine\Laravel\Layouts\AppLayout;
+use MoonShine\MenuManager\MenuItem;
 
 final class MoonShineLayout extends AppLayout
 {
@@ -34,27 +34,27 @@ final class MoonShineLayout extends AppLayout
             // MenuItem::make(UserResource::class, 'Users'),
             MenuItem::make(
                 AccountResource::class,
-                "Accounts",
-                "document",
+                'Accounts',
+                'document',
             )->canSee(
-                static fn(): bool => request()
-                    ->user("moonshine")
-                    ?->moonshineUserRole->name == "Admin",
+                static fn (): bool => request()
+                    ->user('moonshine')
+                    ?->moonshineUserRole->name == 'Admin',
             ),
             MenuItem::make(
                 TransactionResource::class,
-                "Transactions",
-                "document-check",
+                'Transactions',
+                'document-check',
             ),
             MenuItem::make(
                 JournalEntrieResource::class,
-                "JournalEntries",
-                "document-text",
+                'JournalEntries',
+                'document-text',
             ),
             MenuItem::make(
                 TrialBalancePage::class,
-                "ОСВ",
-                "chart-bar",
+                'ОСВ',
+                'chart-bar',
             ),
         ];
     }
@@ -66,6 +66,6 @@ final class MoonShineLayout extends AppLayout
     {
         parent::colors($colorManager);
 
-        $colorManager->primary("#00000");
+        $colorManager->primary('#00000');
     }
 }

@@ -21,12 +21,12 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "date" => ["required", "date"],
-            "description" => ["required", "string"],
-            "entries" => ["required", "array", "min:2"],
-            "entries.*.account_id" => ["required", "integer", "exists:accounts,id"],
-            "entries.*.amount" => ["required", "numeric", "gt:0"],
-            "entries.*.type" => ["required", Rule::enum(TypeEntryEnum::class)],
+            'date' => ['required', 'date'],
+            'description' => ['required', 'string'],
+            'entries' => ['required', 'array', 'min:2'],
+            'entries.*.account_id' => ['required', 'integer', 'exists:accounts,id'],
+            'entries.*.amount' => ['required', 'numeric', 'gt:0'],
+            'entries.*.type' => ['required', Rule::enum(TypeEntryEnum::class)],
         ];
     }
 }

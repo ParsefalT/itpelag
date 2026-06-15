@@ -1,4 +1,5 @@
 <?php
+
 // namespace App\Services;
 // namespace App\Services;
 // use App\Models\Transaction;
@@ -58,11 +59,12 @@
 //         });
 //     }
 // }
+
 namespace App\Services;
 
 use App\Exceptions\PostedTransactionException;
-use App\Models\Transaction;
 use App\Models\JournalEntry;
+use App\Models\Transaction;
 use App\Support\Money;
 use App\TypeEntryEnum;
 use Illuminate\Support\Facades\DB;
@@ -77,18 +79,18 @@ class LedgerService
         $this->assertValidEntries($entries);
 
         return DB::transaction(function () use ($data, $entries) {
-            $transaction = Transaction::create($data);
-            
+            $transaction = Transaction::query()->create($data);
+
             foreach ($entries as $entry) {
-                JournalEntry::create([
-                    "transaction_id" => $transaction->id,
-                    "account_id" => $entry["account_id"],
-                    "amount" => $entry["amount"],
-                    "type" => $entry["type"],
+                JournalEntry::query()->create([
+                    'transaction_id' => $transaction->getKey(),
+                    'account_id' => $entry['account_id'],
+                    'amount' => $entry['amount'],
+                    'type' => $entry['type'],
                 ]);
             }
 
-            return $transaction->refresh()->load("journalEntries.account");
+            return $transaction->refresh()->load('journalEntries.account');
         });
     }
 
@@ -109,15 +111,15 @@ class LedgerService
             $transaction->update($data);
 
             foreach ($entries as $entry) {
-                JournalEntry::create([
-                    "transaction_id" => $transaction->id,
-                    "account_id" => $entry["account_id"],
-                    "amount" => $entry["amount"],
-                    "type" => $entry["type"],
+                JournalEntry::query()->create([
+                    'transaction_id' => $transaction->getKey(),
+                    'account_id' => $entry['account_id'],
+                    'amount' => $entry['amount'],
+                    'type' => $entry['type'],
                 ]);
             }
 
-            return $transaction->refresh()->load("journalEntries.account");
+            return $transaction->refresh()->load('journalEntries.account');
         });
     }
 
@@ -154,7 +156,7 @@ class LedgerService
     {
         if (count($entries) < 2) {
             throw new \InvalidArgumentException(
-                "Транзакция должна содержать минимум 2 проводки.",
+                'Транзакция должна содержать минимум 2 проводки.',
             );
         }
 
@@ -162,11 +164,11 @@ class LedgerService
         $creditSum = 0;
 
         foreach ($entries as $entry) {
-            $amount = Money::toCents($entry["amount"]);
+            $amount = Money::toCents($entry['amount']);
 
-            if ($entry["type"] === TypeEntryEnum::DEBIT->value) {
+            if ($entry['type'] === TypeEntryEnum::DEBIT->value) {
                 $debitSum += $amount;
-            } elseif ($entry["type"] === TypeEntryEnum::CREDIT->value) {
+            } elseif ($entry['type'] === TypeEntryEnum::CREDIT->value) {
                 $creditSum += $amount;
             }
         }

@@ -26,24 +26,24 @@ class LedgerServiceTest extends TestCase
 
     public function test_it_creates_balanced_transaction_with_journal_entries(): void
     {
-        $debitAccount = Account::factory()->create(["type" => "asset"]);
-        $creditAccount = Account::factory()->create(["type" => "revenue"]);
+        $debitAccount = Account::factory()->create(['type' => 'asset']);
+        $creditAccount = Account::factory()->create(['type' => 'revenue']);
 
         $transaction = $this->ledgerService->createTransaction(
             [
-                "date" => "2026-06-11",
-                "description" => "Test payment",
+                'date' => '2026-06-11',
+                'description' => 'Test payment',
             ],
             [
                 [
-                    "account_id" => $debitAccount->id,
-                    "amount" => 150.25,
-                    "type" => TypeEntryEnum::DEBIT->value,
+                    'account_id' => $debitAccount->id,
+                    'amount' => 150.25,
+                    'type' => TypeEntryEnum::DEBIT->value,
                 ],
                 [
-                    "account_id" => $creditAccount->id,
-                    "amount" => 150.25,
-                    "type" => TypeEntryEnum::CREDIT->value,
+                    'account_id' => $creditAccount->id,
+                    'amount' => 150.25,
+                    'type' => TypeEntryEnum::CREDIT->value,
                 ],
             ],
         );
@@ -51,10 +51,10 @@ class LedgerServiceTest extends TestCase
         $this->assertInstanceOf(Transaction::class, $transaction);
         $transaction->refresh();
 
-        $this->assertDatabaseHas("transactions", [
-            "id" => $transaction->id,
-            "description" => "Test payment",
-            "is_posted" => true,
+        $this->assertDatabaseHas('transactions', [
+            'id' => $transaction->id,
+            'description' => 'Test payment',
+            'is_posted' => true,
         ]);
         $this->assertCount(2, $transaction->journalEntries);
         $this->assertTrue($transaction->isBalanced());
@@ -67,23 +67,23 @@ class LedgerServiceTest extends TestCase
         $creditAccount = Account::factory()->create();
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("Сумма дебета");
+        $this->expectExceptionMessage('Сумма дебета');
 
         $this->ledgerService->createTransaction(
             [
-                "date" => "2026-06-11",
-                "description" => "Unbalanced",
+                'date' => '2026-06-11',
+                'description' => 'Unbalanced',
             ],
             [
                 [
-                    "account_id" => $debitAccount->id,
-                    "amount" => 100,
-                    "type" => TypeEntryEnum::DEBIT->value,
+                    'account_id' => $debitAccount->id,
+                    'amount' => 100,
+                    'type' => TypeEntryEnum::DEBIT->value,
                 ],
                 [
-                    "account_id" => $creditAccount->id,
-                    "amount" => 50,
-                    "type" => TypeEntryEnum::CREDIT->value,
+                    'account_id' => $creditAccount->id,
+                    'amount' => 50,
+                    'type' => TypeEntryEnum::CREDIT->value,
                 ],
             ],
         );
@@ -94,18 +94,18 @@ class LedgerServiceTest extends TestCase
         $account = Account::factory()->create();
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage("минимум 2 проводки");
+        $this->expectExceptionMessage('минимум 2 проводки');
 
         $this->ledgerService->createTransaction(
             [
-                "date" => "2026-06-11",
-                "description" => "Single entry",
+                'date' => '2026-06-11',
+                'description' => 'Single entry',
             ],
             [
                 [
-                    "account_id" => $account->id,
-                    "amount" => 100,
-                    "type" => TypeEntryEnum::DEBIT->value,
+                    'account_id' => $account->id,
+                    'amount' => 100,
+                    'type' => TypeEntryEnum::DEBIT->value,
                 ],
             ],
         );

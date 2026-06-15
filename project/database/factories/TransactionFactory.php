@@ -13,9 +13,9 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            "date" => fake()->date(),
-            "description" => fake()->sentence(),
-            "is_posted" => false,
+            'date' => fake()->date(),
+            'description' => fake()->sentence(),
+            'is_posted' => false,
         ];
     }
 }

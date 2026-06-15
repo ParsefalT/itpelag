@@ -27,3 +27,9 @@ migrate:
 
 createUser:
 	cd docker/ && docker container exec -it itpelag-php-fpm bash "php artisan moonshine:user"
+
+cs-fix:
+	cd docker/ && docker container exec -it itpelag-php-fpm php /application/vendor/bin/php-cs-fixer fix --config=/application/.php-cs-fixer.php
+
+phpstan:
+	cd docker/ && docker container exec -it itpelag-php-fpm php /application/vendor/bin/phpstan analyse --configuration=/application/phpstan.neon --memory-limit=512M

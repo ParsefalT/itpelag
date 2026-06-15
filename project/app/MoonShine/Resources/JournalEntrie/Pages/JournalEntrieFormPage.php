@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\JournalEntrie\Pages;
 
 use App\MoonShine\Resources\Account\AccountResource;
-use MoonShine\Laravel\Pages\Crud\FormPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\Contracts\UI\FormBuilderContract;
-use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
 use App\TypeEntryEnum;
 use Illuminate\Validation\Rule;
+use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\Laravel\Fields\Relationships\BelongsTo;
+use MoonShine\Laravel\Pages\Crud\FormPage;
 use MoonShine\Support\ListOf;
-use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Components\Layout\Box;
 use MoonShine\UI\Fields\Enum;
+use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Number;
 
 /**
@@ -33,11 +33,11 @@ class JournalEntrieFormPage extends FormPage
         return [
             Box::make([
                 ID::make(),
-                Number::make("Сумма", "amount")->min(0.01)->step(0.01)->required(),
-                Enum::make("Тип", "type")->attach(TypeEntryEnum::class)->required(),
+                Number::make('Сумма', 'amount')->min(0.01)->step(0.01)->required(),
+                Enum::make('Тип', 'type')->attach(TypeEntryEnum::class)->required(),
                 BelongsTo::make(
-                    "Счёт",
-                    "account",
+                    'Счёт',
+                    'account',
                     formatted: static fn ($model) => $model->name,
                     resource: AccountResource::class,
                 )->required(),
@@ -58,9 +58,9 @@ class JournalEntrieFormPage extends FormPage
     protected function rules(DataWrapperContract $item): array
     {
         return [
-            "amount" => ["required", "numeric", "gt:0"],
-            "type" => ["required", Rule::enum(TypeEntryEnum::class)],
-            "account_id" => ["required", "integer", "exists:accounts,id"],
+            'amount' => ['required', 'numeric', 'gt:0'],
+            'type' => ['required', Rule::enum(TypeEntryEnum::class)],
+            'account_id' => ['required', 'integer', 'exists:accounts,id'],
         ];
     }
 

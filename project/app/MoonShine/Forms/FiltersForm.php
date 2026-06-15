@@ -34,7 +34,7 @@ final readonly class FiltersForm implements FormContract
 
     public function __construct(
         private CrudResourceContract $resource,
-        private CoreContract $core
+        private CoreContract $core,
     ) {
     }
 
@@ -108,17 +108,17 @@ final readonly class FiltersForm implements FormContract
                 ];
 
                 $form->customAttributes([
-                    '@submit.prevent' => "asyncFilters(
-                        `" . AlpineJs::prepareEvents($events) . "`,
+                    '@submit.prevent' => 'asyncFilters(
+                        `' . AlpineJs::prepareEvents($events) . '`,
                         `_component_name,_token,_method`
-                    )",
+                    )',
                 ]);
 
                 $form->buttons([
                     $this->getResetButton(
                         async: $page->isAsync(),
                         hide: true,
-                        name: $resource->getQueryParamName('reset')
+                        name: $resource->getQueryParamName('reset'),
                     ),
                 ]);
             })
@@ -127,7 +127,7 @@ final readonly class FiltersForm implements FormContract
                 $resource->getFilterParams() !== [],
                 fn (FormBuilderContract $form): FormBuilderContract => $form->buttons([
                     $this->getResetButton(
-                        name: $resource->getQueryParamName('reset')
+                        name: $resource->getQueryParamName('reset'),
                     ),
                 ]),
             );

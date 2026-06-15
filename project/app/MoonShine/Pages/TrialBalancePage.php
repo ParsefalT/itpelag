@@ -25,13 +25,13 @@ class TrialBalancePage extends Page
     public function getBreadcrumbs(): array
     {
         return [
-            "#" => $this->getTitle(),
+            '#' => $this->getTitle(),
         ];
     }
 
     public function getTitle(): string
     {
-        return "Оборотно-сальдовая ведомость";
+        return 'Оборотно-сальдовая ведомость';
     }
 
     /**
@@ -41,22 +41,22 @@ class TrialBalancePage extends Page
     {
         $period = $this->resolvePeriod();
         $rows = app(TrialBalanceService::class)->build(
-            $period["from"],
-            $period["to"],
+            $period['from'],
+            $period['to'],
         );
 
         return [
-            Box::make("Параметры", [
+            Box::make('Параметры', [
                 $this->buildFilterForm($period),
             ]),
-            Box::make("Отчёт", [
+            Box::make('Отчёт', [
                 Heading::make(
                     sprintf(
-                        "Период: %s — %s",
-                        Carbon::parse($period["from"])->format("d.m.Y"),
-                        Carbon::parse($period["to"])->format("d.m.Y"),
+                        'Период: %s — %s',
+                        Carbon::parse($period['from'])->format('d.m.Y'),
+                        Carbon::parse($period['to'])->format('d.m.Y'),
                     ),
-                )->class("mb-4"),
+                )->class('mb-4'),
                 $this->buildReportTable($rows),
             ]),
         ];
@@ -68,18 +68,18 @@ class TrialBalancePage extends Page
     private function buildFilterForm(array $period): FormBuilder
     {
         return FormBuilder::make($this->getUrl(), FormMethod::GET)
-            ->name("trial-balance-filter")
+            ->name('trial-balance-filter')
             ->fields([
-                DateRange::make("Период", "period")->required(),
+                DateRange::make('Период', 'period')->required(),
             ])
             ->fill([
-                "period" => [
-                    "from" => $period["from"],
-                    "to" => $period["to"],
+                'period' => [
+                    'from' => $period['from'],
+                    'to' => $period['to'],
                 ],
             ])
-            ->submit("Сформировать", [
-                "class" => "btn-primary",
+            ->submit('Сформировать', [
+                'class' => 'btn-primary',
             ]);
     }
 
@@ -90,14 +90,14 @@ class TrialBalancePage extends Page
     {
         return TableBuilder::make(
             fields: [
-                Text::make("Код", "code"),
-                Text::make("Счёт", "name"),
-                Text::make("Сальдо нач. Дт", "opening_debit"),
-                Text::make("Сальдо нач. Кт", "opening_credit"),
-                Text::make("Оборот Дт", "turnover_debit"),
-                Text::make("Оборот Кт", "turnover_credit"),
-                Text::make("Сальдо кон. Дт", "closing_debit"),
-                Text::make("Сальдо кон. Кт", "closing_credit"),
+                Text::make('Код', 'code'),
+                Text::make('Счёт', 'name'),
+                Text::make('Сальдо нач. Дт', 'opening_debit'),
+                Text::make('Сальдо нач. Кт', 'opening_credit'),
+                Text::make('Оборот Дт', 'turnover_debit'),
+                Text::make('Оборот Кт', 'turnover_credit'),
+                Text::make('Сальдо кон. Дт', 'closing_debit'),
+                Text::make('Сальдо кон. Кт', 'closing_credit'),
             ],
             items: $rows,
         )
@@ -110,8 +110,8 @@ class TrialBalancePage extends Page
 
                     $original = $data->getOriginal();
 
-                    if (is_array($original) && ($original["is_total"] ?? "0") === "1") {
-                        return ["class" => "font-semibold"];
+                    if (is_array($original) && ($original['is_total'] ?? '0') === '1') {
+                        return ['class' => 'font-semibold'];
                     }
 
                     return [];
@@ -126,34 +126,34 @@ class TrialBalancePage extends Page
     private function resolvePeriod(): array
     {
         /** @var array{from?: string, to?: string}|null $period */
-        $period = request()->input("period");
+        $period = request()->input('period');
 
-        $from = $this->parseDate(data_get($period, "from"));
-        $to = $this->parseDate(data_get($period, "to"));
+        $from = $this->parseDate(data_get($period, 'from'));
+        $to = $this->parseDate(data_get($period, 'to'));
 
         if ($from === null || $to === null) {
             return [
-                "from" => now()->startOfMonth()->toDateString(),
-                "to" => now()->toDateString(),
+                'from' => now()->startOfMonth()->toDateString(),
+                'to' => now()->toDateString(),
             ];
         }
 
         if (Carbon::parse($from)->greaterThan(Carbon::parse($to))) {
             return [
-                "from" => $to,
-                "to" => $from,
+                'from' => $to,
+                'to' => $from,
             ];
         }
 
         return [
-            "from" => $from,
-            "to" => $to,
+            'from' => $from,
+            'to' => $to,
         ];
     }
 
     private function parseDate(mixed $value): ?string
     {
-        if (! is_string($value) || $value === "") {
+        if (! is_string($value) || $value === '') {
             return null;
         }
 
@@ -162,7 +162,7 @@ class TrialBalancePage extends Page
         }
 
         try {
-            return Carbon::createFromFormat("Y-m-d", $value)->toDateString();
+            return Carbon::createFromFormat('Y-m-d', $value)->toDateString();
         } catch (\Throwable) {
             return null;
         }

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\JournalEntrie\Pages;
 
-use MoonShine\Laravel\Pages\Crud\IndexPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
-use MoonShine\Laravel\QueryTags\QueryTag;
-use MoonShine\UI\Components\Metrics\Wrapped\Metric;
-use MoonShine\UI\Fields\ID;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
 use App\TypeEntryEnum;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Laravel\Pages\Crud\IndexPage;
+use MoonShine\Laravel\QueryTags\QueryTag;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\Metrics\Wrapped\Metric;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Enum;
+use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Text;
 use Throwable;
 
@@ -32,8 +32,8 @@ class JournalEntrieIndexPage extends IndexPage
     {
         return [
             ID::make(),
-            Text::make("Amount", "amount")->required(),
-            Enum::make("Type", "type")->attach(TypeEntryEnum::class),
+            Text::make('Amount', 'amount')->required(),
+            Enum::make('Type', 'type')->attach(TypeEntryEnum::class),
         ];
     }
 
@@ -50,7 +50,7 @@ class JournalEntrieIndexPage extends IndexPage
      */
     protected function filters(): iterable
     {
-        return [Text::make("Type", "type")];
+        return [Text::make('Type', 'type')];
     }
 
     /**

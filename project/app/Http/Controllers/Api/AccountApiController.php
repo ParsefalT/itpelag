@@ -14,58 +14,60 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use OpenApi\Attributes as OA;
 
 #[OA\Get(
-    path: "/v1/accounts",
-    operationId: "listAccounts",
-    summary: "Список счетов",
-    description: "Возвращает id счетов для использования в поле account_id при создании транзакций.",
-    security: [["basicAuth" => []]],
-    tags: ["Accounts"],
+    path: '/v1/accounts',
+    operationId: 'listAccounts',
+    summary: 'Список счетов',
+    description: 'Возвращает id счетов для использования в поле account_id при создании транзакций.',
+    security: [['basicAuth' => []]],
+    tags: ['Accounts'],
     responses: [
         new OA\Response(
             response: 200,
-            description: "Список счетов",
+            description: 'Список счетов',
             content: new OA\JsonContent(
                 properties: [
                     new OA\Property(
-                        property: "data",
-                        type: "array",
-                        items: new OA\Items(ref: "#/components/schemas/Account"),
+                        property: 'data',
+                        type: 'array',
+                        items: new OA\Items(ref: '#/components/schemas/Account'),
                     ),
                 ],
             ),
         ),
-        new OA\Response(response: 401, description: "Не авторизован"),
+        new OA\Response(response: 401, description: 'Не авторизован'),
     ],
 )]
 #[OA\Get(
-    path: "/v1/accounts/{account}/balance",
-    operationId: "getAccountBalance",
-    summary: "Остаток по счёту",
-    description: "Возвращает обороты по дебету/кредиту и текущий сальдо с учётом типа счёта.",
-    security: [["basicAuth" => []]],
-    tags: ["Accounts"],
+    path: '/v1/accounts/{account}/balance',
+    operationId: 'getAccountBalance',
+    summary: 'Остаток по счёту',
+    description: 'Возвращает обороты по дебету/кредиту и текущий сальдо с учётом типа счёта.',
+    security: [['basicAuth' => []]],
+    tags: ['Accounts'],
     parameters: [
-        new OA\Parameter(name: "account", in: "path", required: true, schema: new OA\Schema(type: "integer")),
+        new OA\Parameter(name: 'account', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
     ],
     responses: [
         new OA\Response(
             response: 200,
-            description: "Остаток по счёту",
-            content: new OA\JsonContent(ref: "#/components/schemas/AccountBalanceResponse"),
+            description: 'Остаток по счёту',
+            content: new OA\JsonContent(ref: '#/components/schemas/AccountBalanceResponse'),
         ),
-        new OA\Response(response: 401, description: "Не авторизован"),
-        new OA\Response(response: 404, description: "Счёт не найден"),
+        new OA\Response(response: 401, description: 'Не авторизован'),
+        new OA\Response(response: 404, description: 'Счёт не найден'),
     ],
 )]
 class AccountApiController extends Controller
 {
-    public function __construct(private AccountBalanceService $accountBalanceService) {}
+    public function __construct(private AccountBalanceService $accountBalanceService)
+    {
+    }
 
     public function index(): AnonymousResourceCollection
     {
         $accounts = Account::query()
-            ->where("is_active", true)
-            ->orderBy("code")
+            ->where('is_active', true)
+            ->orderBy('code')
             ->paginate(50);
 
         return AccountResource::collection($accounts);
@@ -74,7 +76,7 @@ class AccountApiController extends Controller
     public function balance(Account $account): JsonResponse
     {
         return response()->json([
-            "data" => new AccountBalanceResource(
+            'data' => new AccountBalanceResource(
                 $this->accountBalanceService->getBalance($account),
             ),
         ]);

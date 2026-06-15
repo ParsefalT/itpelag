@@ -1,0 +1,15 @@
+parameters:
+    level: 5
+    paths:
+        - app/Exceptions
+        - app/Http/Controllers
+        - app/Http/Requests
+        - app/Observers
+        - app/Services
+        - app/Support
+    tmpDir: storage/framework/cache/phpstan
+    treatPhpDocTypesAsCertain: false
+    excludePaths:
+        - vendor
+        - storage
+        - bootstrap/cache

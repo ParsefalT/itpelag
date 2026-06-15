@@ -8,14 +8,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $code
+ * @property TypeAccountEnum $type
+ * @property bool $is_active
+ */
 class Account extends Model
 {
     use HasFactory;
-    protected $fillable = ["name", "code", "type", "is_active"];
+    protected $fillable = ['name', 'code', 'type', 'is_active'];
 
     protected $casts = [
-        "is_active" => "boolean",
-        "type" => TypeAccountEnum::class,
+        'is_active' => 'boolean',
+        'type' => TypeAccountEnum::class,
     ];
 
     public function journalEntries(): HasMany
@@ -25,11 +32,11 @@ class Account extends Model
 
     public function scopeActiveAccount(Builder $query): Builder
     {
-        return $query->where("is_active", true);
+        return $query->where('is_active', true);
     }
 
     public function getAmountSumAttribute()
     {
-        return $this->journalEntries()->sum("amount");
+        return $this->journalEntries()->sum('amount');
     }
 }

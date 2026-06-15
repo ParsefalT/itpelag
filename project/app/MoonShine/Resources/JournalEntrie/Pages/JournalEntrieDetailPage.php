@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\JournalEntrie\Pages;
 
-use MoonShine\Laravel\Pages\Crud\DetailPage;
-use MoonShine\Contracts\UI\ComponentContract;
-use MoonShine\UI\Components\Table\TableBuilder;
-use MoonShine\Contracts\UI\FieldContract;
 use App\MoonShine\Resources\JournalEntrie\JournalEntrieResource;
-use App\TypeAccountEnum;
 use App\TypeEntryEnum;
+use MoonShine\Contracts\UI\ComponentContract;
+use MoonShine\Contracts\UI\FieldContract;
+use MoonShine\Laravel\Pages\Crud\DetailPage;
 use MoonShine\Support\ListOf;
+use MoonShine\UI\Components\Table\TableBuilder;
 use MoonShine\UI\Fields\Enum;
 use MoonShine\UI\Fields\ID;
 use MoonShine\UI\Fields\Text;
@@ -29,8 +28,8 @@ class JournalEntrieDetailPage extends DetailPage
     {
         return [
             ID::make(),
-            Text::make("Amount", "amount")->required(),
-            Enum::make("Type", "type")->attach(TypeEntryEnum::class),
+            Text::make('Amount', 'amount')->required(),
+            Enum::make('Type', 'type')->attach(TypeEntryEnum::class),
         ];
     }
 

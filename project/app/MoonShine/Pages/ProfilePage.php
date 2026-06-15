@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Pages;
 
-use MoonShine\Laravel\Pages\Page;
 use MoonShine\Contracts\UI\ComponentContract;
 use MoonShine\Contracts\UI\FieldContract;
 use MoonShine\Contracts\UI\FormBuilderContract;
 use MoonShine\Crud\Traits\WithComponentsPusher;
 use MoonShine\Laravel\MoonShineAuth;
+use MoonShine\Laravel\Pages\Page;
 use MoonShine\Laravel\TypeCasts\ModelCaster;
 use MoonShine\MenuManager\Attributes\SkipMenu;
 use MoonShine\UI\Components\FormBuilder;
@@ -111,7 +111,7 @@ class ProfilePage extends Page
         $user = MoonShineAuth::getGuard()->user() ?? MoonShineAuth::getModel();
 
         return FormBuilder::make(
-            $this->getRouter()->to('profile.store')
+            $this->getRouter()->to('profile.store'),
         )
             ->async()
             ->name('profile-form')

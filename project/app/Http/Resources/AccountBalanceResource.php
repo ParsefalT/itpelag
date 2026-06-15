@@ -15,13 +15,13 @@ class AccountBalanceResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "account_id" => $this->resource["account_id"],
-            "code" => $this->resource["code"],
-            "name" => $this->resource["name"],
-            "type" => $this->resource["type"],
-            "debit_total" => $this->resource["debit_total"],
-            "credit_total" => $this->resource["credit_total"],
-            "balance" => $this->resource["balance"],
+            'account_id' => $this->resource['account_id'],
+            'code' => $this->resource['code'],
+            'name' => $this->resource['name'],
+            'type' => $this->resource['type'],
+            'debit_total' => $this->resource['debit_total'],
+            'credit_total' => $this->resource['credit_total'],
+            'balance' => $this->resource['balance'],
         ];
     }
 }

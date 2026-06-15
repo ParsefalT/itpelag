@@ -12,24 +12,24 @@ final class Money
             return $amount * 100;
         }
 
-        $normalized = str_replace(",", ".", trim((string) $amount));
+        $normalized = str_replace(',', '.', trim((string) $amount));
 
-        if ($normalized === "") {
+        if ($normalized === '') {
             return 0;
         }
 
         $sign = 1;
-        if (str_starts_with($normalized, "-")) {
+        if (str_starts_with($normalized, '-')) {
             $sign = -1;
             $normalized = substr($normalized, 1);
         }
 
-        if (! preg_match("/^\\d+(?:\\.\\d+)?$/", $normalized)) {
-            throw new \InvalidArgumentException("Некорректный формат суммы.");
+        if (! preg_match('/^\\d+(?:\\.\\d+)?$/', $normalized)) {
+            throw new \InvalidArgumentException('Некорректный формат суммы.');
         }
 
-        [$whole, $fraction] = array_pad(explode(".", $normalized, 2), 2, "0");
-        $fraction = str_pad($fraction, 3, "0");
+        [$whole, $fraction] = array_pad(explode('.', $normalized, 2), 2, '0');
+        $fraction = str_pad($fraction, 3, '0');
 
         $cents = ((int) $whole) * 100 + (int) substr($fraction, 0, 2);
         $roundDigit = (int) substr($fraction, 2, 1);
@@ -43,10 +43,10 @@ final class Money
 
     public static function fromCents(int $cents): string
     {
-        $sign = $cents < 0 ? "-" : "";
+        $sign = $cents < 0 ? '-' : '';
         $absolute = abs($cents);
         $whole = intdiv($absolute, 100);
-        $fraction = str_pad((string) ($absolute % 100), 2, "0", STR_PAD_LEFT);
+        $fraction = str_pad((string) ($absolute % 100), 2, '0', STR_PAD_LEFT);
 
         return "{$sign}{$whole}.{$fraction}";
     }

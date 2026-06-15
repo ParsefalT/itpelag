@@ -23,30 +23,35 @@ final class AccountBalanceService
      */
     public function getBalance(Account $account): array
     {
-        $debitCents = $this->sumByType($account, "debit");
-        $creditCents = $this->sumByType($account, "credit");
+        $type = $account->getAttribute('type');
+        if (! $type instanceof TypeAccountEnum) {
+            $type = TypeAccountEnum::from((string) $type);
+        }
 
-        $balanceCents = $this->isDebitNormal($account->type)
+        $debitCents = $this->sumByType($account, 'debit');
+        $creditCents = $this->sumByType($account, 'credit');
+
+        $balanceCents = $this->isDebitNormal($type)
             ? $debitCents - $creditCents
             : $creditCents - $debitCents;
 
         return [
-            "account_id" => $account->id,
-            "code" => $account->code,
-            "name" => $account->name,
-            "type" => $account->type->value,
-            "debit_total" => $this->fromCents($debitCents),
-            "credit_total" => $this->fromCents($creditCents),
-            "balance" => $this->fromCents($balanceCents),
+            'account_id' => (int) $account->getKey(),
+            'code' => (string) $account->getAttribute('code'),
+            'name' => (string) $account->getAttribute('name'),
+            'type' => $type->value,
+            'debit_total' => $this->fromCents($debitCents),
+            'credit_total' => $this->fromCents($creditCents),
+            'balance' => $this->fromCents($balanceCents),
         ];
     }
 
     private function sumByType(Account $account, string $type): int
     {
         $sum = $account->journalEntries()
-            ->where("type", $type)
-            ->whereHas("transaction", static fn ($query) => $query->where("is_posted", true))
-            ->sum("amount");
+            ->where('type', $type)
+            ->whereHas('transaction', static fn ($query) => $query->where('is_posted', true))
+            ->sum('amount');
 
         return Money::toCents($sum);
     }

@@ -14,10 +14,10 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            "name" => fake()->words(2, true),
-            "code" => (string) fake()->unique()->numberBetween(100, 999),
-            "type" => fake()->randomElement(TypeAccountEnum::cases())->value,
-            "is_active" => true,
+            'name' => fake()->words(2, true),
+            'code' => (string) fake()->unique()->numberBetween(100, 999),
+            'type' => fake()->randomElement(TypeAccountEnum::cases())->value,
+            'is_active' => true,
         ];
     }
 }

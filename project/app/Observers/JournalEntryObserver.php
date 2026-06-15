@@ -11,13 +11,15 @@ final class JournalEntryObserver
 {
     public function saved(JournalEntry $journalEntry): void
     {
-        $this->syncPostedStatus($journalEntry->transaction);
+        $transaction = $journalEntry->transaction()->first();
+
+        $this->syncPostedStatus($transaction instanceof Transaction ? $transaction : null);
     }
 
     public function deleted(JournalEntry $journalEntry): void
     {
         $this->syncPostedStatus(
-            Transaction::query()->find($journalEntry->transaction_id),
+            Transaction::query()->find($journalEntry->getAttribute('transaction_id')),
         );
     }
 
@@ -30,10 +32,10 @@ final class JournalEntryObserver
         $transaction->refresh();
         $isPosted = $transaction->shouldBePosted();
 
-        if ($transaction->is_posted === $isPosted) {
+        if ($transaction->isPosted() === $isPosted) {
             return;
         }
 
-        $transaction->forceFill(["is_posted" => $isPosted])->saveQuietly();
+        $transaction->forceFill(['is_posted' => $isPosted])->saveQuietly();
     }
 }

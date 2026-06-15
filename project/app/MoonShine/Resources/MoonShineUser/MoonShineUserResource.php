@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\MoonShine\Resources\MoonShineUser;
 
-use MoonShine\Laravel\Models\MoonshineUser;
-use MoonShine\Laravel\Resources\ModelResource;
+use App\MoonShine\Resources\BaseResource;
 use App\MoonShine\Resources\MoonShineUser\Pages\MoonShineUserFormPage;
 use App\MoonShine\Resources\MoonShineUser\Pages\MoonShineUserIndexPage;
+use MoonShine\Laravel\Models\MoonshineUser;
 use MoonShine\MenuManager\Attributes\Group;
 use MoonShine\MenuManager\Attributes\Order;
 use MoonShine\Support\Attributes\Icon;
@@ -20,7 +20,7 @@ use MoonShine\Support\ListOf;
 #[Icon('users')]
 #[Group('moonshine::ui.resource.system', 'users', translatable: true)]
 #[Order(0)]
-class MoonShineUserResource extends ModelResource
+class MoonShineUserResource extends BaseResource
 {
     protected string $model = MoonshineUser::class;
 

@@ -9,10 +9,10 @@ use App\Models\Account;
 use App\MoonShine\Resources\Account\Pages\AccountDetailPage;
 use App\MoonShine\Resources\Account\Pages\AccountFormPage;
 use App\MoonShine\Resources\Account\Pages\AccountIndexPage;
+use App\MoonShine\Resources\BaseResource;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Core\Exceptions\ResourceException;
-use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Support\Enums\Ability;
 use MoonShine\Support\Enums\PageType;
 use MoonShine\Support\Enums\SortDirection;
@@ -20,15 +20,15 @@ use MoonShine\Support\Enums\SortDirection;
 /**
  * @extends ModelResource<Account, AccountIndexPage, AccountFormPage, AccountDetailPage>
  */
-class AccountResource extends ModelResource
+class AccountResource extends BaseResource
 {
     protected string $model = Account::class;
 
-    protected string $title = "Accounts";
+    protected string $title = 'Accounts';
 
-    protected string $column = "name";
+    protected string $column = 'name';
 
-    protected string $sortColumn = "id";
+    protected string $sortColumn = 'id';
 
     protected SortDirection $sortDirection = SortDirection::ASC;
 
@@ -71,8 +71,8 @@ class AccountResource extends ModelResource
     protected function beforeMassDeleting(array $ids): void
     {
         $hasEntries = Account::query()
-            ->whereIn("id", $ids)
-            ->whereHas("journalEntries")
+            ->whereIn('id', $ids)
+            ->whereHas('journalEntries')
             ->exists();
 
         if ($hasEntries) {

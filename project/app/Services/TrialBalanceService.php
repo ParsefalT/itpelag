@@ -15,15 +15,15 @@ final class TrialBalanceService
      */
     public function build(string $from, string $to): array
     {
-        $rows = DB::table("accounts")
-            ->leftJoin("journal_entries as je", "je.account_id", "=", "accounts.id")
-            ->leftJoin("transactions as t", static function ($join): void {
-                $join->on("t.id", "=", "je.transaction_id")
-                    ->where("t.is_posted", true);
+        $rows = DB::table('accounts')
+            ->leftJoin('journal_entries as je', 'je.account_id', '=', 'accounts.id')
+            ->leftJoin('transactions as t', static function ($join): void {
+                $join->on('t.id', '=', 'je.transaction_id')
+                    ->where('t.is_posted', true);
             })
-            ->where("accounts.is_active", true)
-            ->groupBy("accounts.id", "accounts.code", "accounts.name")
-            ->orderBy("accounts.code")
+            ->where('accounts.is_active', true)
+            ->groupBy('accounts.id', 'accounts.code', 'accounts.name')
+            ->orderBy('accounts.code')
             ->selectRaw(
                 "
                 accounts.id,
@@ -66,15 +66,15 @@ final class TrialBalanceService
         );
 
         return [
-            "code" => (string) $row->code,
-            "name" => (string) $row->name,
-            "opening_debit" => $openingDebit,
-            "opening_credit" => $openingCredit,
-            "turnover_debit" => $this->formatAmount($row->turnover_debit_raw),
-            "turnover_credit" => $this->formatAmount($row->turnover_credit_raw),
-            "closing_debit" => $closingDebit,
-            "closing_credit" => $closingCredit,
-            "is_total" => "0",
+            'code' => (string) $row->code,
+            'name' => (string) $row->name,
+            'opening_debit' => $openingDebit,
+            'opening_credit' => $openingCredit,
+            'turnover_debit' => $this->formatAmount($row->turnover_debit_raw),
+            'turnover_credit' => $this->formatAmount($row->turnover_credit_raw),
+            'closing_debit' => $closingDebit,
+            'closing_credit' => $closingCredit,
+            'is_total' => '0',
         ];
     }
 
@@ -86,33 +86,33 @@ final class TrialBalanceService
     {
         $totals = Collection::make($rows)->reduce(
             fn (array $carry, array $row): array => [
-                "opening_debit" => $this->add($carry["opening_debit"], $row["opening_debit"]),
-                "opening_credit" => $this->add($carry["opening_credit"], $row["opening_credit"]),
-                "turnover_debit" => $this->add($carry["turnover_debit"], $row["turnover_debit"]),
-                "turnover_credit" => $this->add($carry["turnover_credit"], $row["turnover_credit"]),
-                "closing_debit" => $this->add($carry["closing_debit"], $row["closing_debit"]),
-                "closing_credit" => $this->add($carry["closing_credit"], $row["closing_credit"]),
+                'opening_debit' => $this->add($carry['opening_debit'], $row['opening_debit']),
+                'opening_credit' => $this->add($carry['opening_credit'], $row['opening_credit']),
+                'turnover_debit' => $this->add($carry['turnover_debit'], $row['turnover_debit']),
+                'turnover_credit' => $this->add($carry['turnover_credit'], $row['turnover_credit']),
+                'closing_debit' => $this->add($carry['closing_debit'], $row['closing_debit']),
+                'closing_credit' => $this->add($carry['closing_credit'], $row['closing_credit']),
             ],
             [
-                "opening_debit" => "0.00",
-                "opening_credit" => "0.00",
-                "turnover_debit" => "0.00",
-                "turnover_credit" => "0.00",
-                "closing_debit" => "0.00",
-                "closing_credit" => "0.00",
+                'opening_debit' => '0.00',
+                'opening_credit' => '0.00',
+                'turnover_debit' => '0.00',
+                'turnover_credit' => '0.00',
+                'closing_debit' => '0.00',
+                'closing_credit' => '0.00',
             ],
         );
 
         return [
-            "code" => "",
-            "name" => "Итого",
-            "opening_debit" => $totals["opening_debit"],
-            "opening_credit" => $totals["opening_credit"],
-            "turnover_debit" => $totals["turnover_debit"],
-            "turnover_credit" => $totals["turnover_credit"],
-            "closing_debit" => $totals["closing_debit"],
-            "closing_credit" => $totals["closing_credit"],
-            "is_total" => "1",
+            'code' => '',
+            'name' => 'Итого',
+            'opening_debit' => $totals['opening_debit'],
+            'opening_credit' => $totals['opening_credit'],
+            'turnover_debit' => $totals['turnover_debit'],
+            'turnover_credit' => $totals['turnover_credit'],
+            'closing_debit' => $totals['closing_debit'],
+            'closing_credit' => $totals['closing_credit'],
+            'is_total' => '1',
         ];
     }
 
@@ -124,14 +124,14 @@ final class TrialBalanceService
         $diff = $this->toCents($debitSum) - $this->toCents($creditSum);
 
         if ($diff > 0) {
-            return [$this->fromCents($diff), "0.00"];
+            return [$this->fromCents($diff), '0.00'];
         }
 
         if ($diff < 0) {
-            return ["0.00", $this->fromCents(abs($diff))];
+            return ['0.00', $this->fromCents(abs($diff))];
         }
 
-        return ["0.00", "0.00"];
+        return ['0.00', '0.00'];
     }
 
     /**
@@ -140,12 +140,12 @@ final class TrialBalanceService
     private function hasActivity(array $row): bool
     {
         foreach ([
-            "opening_debit",
-            "opening_credit",
-            "turnover_debit",
-            "turnover_credit",
-            "closing_debit",
-            "closing_credit",
+            'opening_debit',
+            'opening_credit',
+            'turnover_debit',
+            'turnover_credit',
+            'closing_debit',
+            'closing_credit',
         ] as $column) {
             if ($this->toCents($row[$column]) !== 0) {
                 return true;

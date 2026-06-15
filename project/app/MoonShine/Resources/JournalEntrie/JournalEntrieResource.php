@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\MoonShine\Resources\JournalEntrie;
 
 use App\Models\JournalEntry;
+use App\MoonShine\Resources\BaseResource;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieDetailPage;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieFormPage;
 use App\MoonShine\Resources\JournalEntrie\Pages\JournalEntrieIndexPage;
@@ -12,7 +13,6 @@ use App\Services\TransactionEntryValidator;
 use MoonShine\Contracts\Core\PageContract;
 use MoonShine\Contracts\Core\TypeCasts\DataWrapperContract;
 use MoonShine\Core\Exceptions\ResourceException;
-use MoonShine\Laravel\Resources\ModelResource;
 use MoonShine\Support\Enums\Ability;
 use MoonShine\Support\Enums\PageType;
 use MoonShine\Support\Enums\SortDirection;
@@ -20,12 +20,12 @@ use MoonShine\Support\Enums\SortDirection;
 /**
  * @extends ModelResource<JournalEntry, JournalEntrieIndexPage, JournalEntrieFormPage, JournalEntrieDetailPage>
  */
-class JournalEntrieResource extends ModelResource
+class JournalEntrieResource extends BaseResource
 {
     protected string $model = JournalEntry::class;
 
-    protected string $title = "JournalEntries";
-    protected string $sortColumn = "id";
+    protected string $title = 'JournalEntries';
+    protected string $sortColumn = 'id';
     protected SortDirection $sortDirection = SortDirection::ASC;
     protected ?PageType $redirectAfterSave = PageType::INDEX;
 
@@ -100,13 +100,13 @@ class JournalEntrieResource extends ModelResource
         $entry = $item->getOriginal();
 
         if ($entry instanceof JournalEntry && $this->isParentPosted($entry)) {
-            throw new ResourceException("Нельзя изменять проводки проведённой транзакции.");
+            throw new ResourceException('Нельзя изменять проводки проведённой транзакции.');
         }
     }
 
     private function isParentPosted(JournalEntry $entry): bool
     {
-        $entry->loadMissing("transaction");
+        $entry->loadMissing('transaction');
 
         return $entry->transaction?->isPosted() ?? false;
     }
